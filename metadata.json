@@ -1,0 +1,6 @@
+{
+  "name": "EmprendeCR Studio",
+  "description": "Simulador académico integral de plan de negocios en Costa Rica conectado con Gemini: desde tu pasión hasta el informe final con 40 preguntas, comparativa de 4 bancos, gráficos financieros y rúbrica SIG.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
