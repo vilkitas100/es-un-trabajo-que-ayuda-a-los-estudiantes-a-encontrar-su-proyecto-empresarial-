@@ -18,6 +18,9 @@ import { ProgressDashboardView } from './components/ProgressDashboardView';
 import { FinalReportView } from './components/FinalReportView';
 import { GeminiMentorDrawer } from './components/GeminiMentorDrawer';
 import { CelebrationResetModal } from './components/CelebrationResetModal';
+import { ProgressCelebrationModal } from './components/ProgressCelebrationModal';
+import { CorporateCitizenGateway } from './components/CorporateCitizenGateway';
+import { playCelebrationFanfare } from './utils/celebrationSound';
 
 const STORAGE_KEY = 'emprendecr_studio_state_v1';
 
@@ -57,6 +60,8 @@ export default function App() {
   const [activeModule, setActiveModule] = useState<ModuleId>('m1_pasion');
   const [isMentorOpen, setIsMentorOpen] = useState(false);
   const [showResetCelebration, setShowResetCelebration] = useState(false);
+  const [showProgressCelebration, setShowProgressCelebration] = useState(false);
+  const [hasSeenProgressCelebration, setHasSeenProgressCelebration] = useState(false);
   const syncTimerRef = useRef<number | null>(null);
 
   // Persist to localStorage immediately AND sync to backend session memory
@@ -260,6 +265,21 @@ export default function App() {
     }, 60);
   };
 
+  const handleChangeModule = (mod: ModuleId) => {
+    setActiveModule(mod);
+    window.scrollTo({ top: 0, behavior: 'auto' });
+  };
+
+  const handleNavigateTab = (tab: AppTab) => {
+    setActiveTab(tab);
+    window.scrollTo({ top: 0, behavior: 'auto' });
+    if (tab === 'progress' && !hasSeenProgressCelebration) {
+      playCelebrationFanfare();
+      setShowProgressCelebration(true);
+      setHasSeenProgressCelebration(true);
+    }
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-white text-slate-900">
       {/* Strict 3-Zone Top Bar Contract */}
@@ -268,7 +288,7 @@ export default function App() {
           {/* Zone 1: Single-line Wordmark */}
           <button
             type="button"
-            onClick={() => setActiveTab('passion')}
+            onClick={() => handleNavigateTab('passion')}
             title="Prof: Liz Acuña. Toma de Decisiones Gerenciales para crear mi empresa."
             className="text-sm sm:text-base font-bold tracking-tight text-[#1E3A8A] whitespace-nowrap shrink-0 cursor-pointer font-display truncate max-w-[200px] sm:max-w-[300px] lg:max-w-[440px] xl:max-w-none"
           >
@@ -279,7 +299,7 @@ export default function App() {
           <nav aria-label="Navegación principal" className="hidden md:flex items-center gap-5 text-sm font-semibold">
             <button
               type="button"
-              onClick={() => setActiveTab('passion')}
+              onClick={() => handleNavigateTab('passion')}
               className={`py-1 border-b-2 transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
                 activeTab === 'passion'
                   ? 'border-[#DC2626] text-[#DC2626]'
@@ -290,7 +310,7 @@ export default function App() {
             </button>
             <button
               type="button"
-              onClick={() => setActiveTab('builder')}
+              onClick={() => handleNavigateTab('builder')}
               className={`py-1 border-b-2 transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
                 activeTab === 'builder'
                   ? 'border-[#1D4ED8] text-[#1D4ED8]'
@@ -301,7 +321,7 @@ export default function App() {
             </button>
             <button
               type="button"
-              onClick={() => setActiveTab('progress')}
+              onClick={() => handleNavigateTab('progress')}
               className={`py-1 border-b-2 transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
                 activeTab === 'progress'
                   ? 'border-[#7E22CE] text-[#7E22CE]'
@@ -312,7 +332,7 @@ export default function App() {
             </button>
             <button
               type="button"
-              onClick={() => setActiveTab('report')}
+              onClick={() => handleNavigateTab('report')}
               className={`py-1 border-b-2 transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
                 activeTab === 'report'
                   ? 'border-[#15803D] text-[#15803D]'
@@ -340,7 +360,7 @@ export default function App() {
         <nav aria-label="Navegación móvil" className="flex md:hidden items-center justify-between px-4 py-2 border-t border-slate-100 text-xs font-semibold overflow-x-auto gap-3 bg-white">
           <button
             type="button"
-            onClick={() => setActiveTab('passion')}
+            onClick={() => handleNavigateTab('passion')}
             className={`whitespace-nowrap shrink-0 px-2 py-1 rounded-md ${
               activeTab === 'passion' ? 'text-[#DC2626] underline underline-offset-4' : 'text-slate-600'
             }`}
@@ -349,7 +369,7 @@ export default function App() {
           </button>
           <button
             type="button"
-            onClick={() => setActiveTab('builder')}
+            onClick={() => handleNavigateTab('builder')}
             className={`whitespace-nowrap shrink-0 px-2 py-1 rounded-md ${
               activeTab === 'builder' ? 'text-[#1D4ED8] underline underline-offset-4' : 'text-slate-600'
             }`}
@@ -358,7 +378,7 @@ export default function App() {
           </button>
           <button
             type="button"
-            onClick={() => setActiveTab('progress')}
+            onClick={() => handleNavigateTab('progress')}
             className={`whitespace-nowrap shrink-0 px-2 py-1 rounded-md ${
               activeTab === 'progress' ? 'text-[#7E22CE] underline underline-offset-4' : 'text-slate-600'
             }`}
@@ -367,7 +387,7 @@ export default function App() {
           </button>
           <button
             type="button"
-            onClick={() => setActiveTab('report')}
+            onClick={() => handleNavigateTab('report')}
             className={`whitespace-nowrap shrink-0 px-2 py-1 rounded-md ${
               activeTab === 'report' ? 'text-[#15803D] underline underline-offset-4' : 'text-slate-600'
             }`}
@@ -389,12 +409,38 @@ export default function App() {
           />
         )}
 
-        {activeTab === 'builder' && (
+        {activeTab === 'builder' && !state.corporateCitizenConfirmed && (
+          <CorporateCitizenGateway
+            studentName={state.studentName}
+            companyName={state.companyName}
+            value={state.corporateCitizenVision}
+            onChange={(val) => updateField('corporateCitizenVision', val)}
+            onConfirmAndStartPlan={() => {
+              setState((prev) => ({
+                ...prev,
+                corporateCitizenConfirmed: true,
+                aiMemoryNotes: prev.corporateCitizenVision.trim()
+                  ? appendUniqueMemory(
+                      prev.aiMemoryNotes,
+                      `Ciudadano corporativo ideado: ${prev.corporateCitizenVision.trim().slice(0, 120)}`
+                    )
+                  : prev.aiMemoryNotes,
+              }));
+              window.scrollTo({ top: 0, behavior: 'auto' });
+            }}
+            onSkipToPlan={() => {
+              updateField('corporateCitizenConfirmed', true);
+              window.scrollTo({ top: 0, behavior: 'auto' });
+            }}
+          />
+        )}
+
+        {activeTab === 'builder' && state.corporateCitizenConfirmed && (
           <PlanBuilderView
             state={state}
             activeModule={activeModule}
             onUpdateField={updateField}
-            onChangeModule={setActiveModule}
+            onChangeModule={handleChangeModule}
             onUpdateAnswer={handleUpdateAnswer}
             onUpdateStartupCosts={handleUpdateStartupCosts}
             onUpdateAssumptions={handleUpdateAssumptions}
@@ -402,6 +448,10 @@ export default function App() {
             onSelectBank={handleSelectBank}
             onToggleLegalItem={handleToggleLegalItem}
             onUpdateLegalNotes={handleUpdateLegalNotes}
+            onEditCorporateCitizen={() => {
+              updateField('corporateCitizenConfirmed', false);
+              window.scrollTo({ top: 0, behavior: 'auto' });
+            }}
             onGoToReport={() => setActiveTab('report')}
           />
         )}
@@ -410,7 +460,11 @@ export default function App() {
           <ProgressDashboardView
             state={state}
             onJumpToQuestion={handleJumpToQuestion}
-            onGoToReport={() => setActiveTab('report')}
+            onGoToReport={() => handleNavigateTab('report')}
+            onShowProgressCelebration={() => {
+              playCelebrationFanfare();
+              setShowProgressCelebration(true);
+            }}
           />
         )}
 
@@ -434,10 +488,14 @@ export default function App() {
           <button
             type="button"
             onClick={() => {
+              playCelebrationFanfare();
               window.localStorage.removeItem(STORAGE_KEY);
               setState(createEmptyBusinessPlanState());
+              setActiveModule('m1_pasion');
               setActiveTab('passion');
-              window.scrollTo({ top: 0, behavior: 'smooth' });
+              setHasSeenProgressCelebration(false);
+              setShowProgressCelebration(false);
+              window.scrollTo({ top: 0, behavior: 'auto' });
               setShowResetCelebration(true);
             }}
             className="text-slate-600 hover:text-[#DC2626] font-medium transition-colors cursor-pointer"
@@ -460,6 +518,31 @@ export default function App() {
       <CelebrationResetModal
         isOpen={showResetCelebration}
         onClose={() => setShowResetCelebration(false)}
+        onStartPassion={() => {
+          setShowResetCelebration(false);
+          setActiveTab('passion');
+          window.setTimeout(() => {
+            const el = document.getElementById('student-name');
+            if (el) {
+              el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              el.focus();
+            }
+          }, 80);
+        }}
+        onGoToModule1={() => {
+          setShowResetCelebration(false);
+          setActiveModule('m1_pasion');
+          setActiveTab('builder');
+          window.scrollTo({ top: 0, behavior: 'auto' });
+        }}
+      />
+
+      {/* Progress Human-Purpose Dopamine Celebration Modal */}
+      <ProgressCelebrationModal
+        isOpen={showProgressCelebration}
+        companyName={state.companyName}
+        studentName={state.studentName}
+        onClose={() => setShowProgressCelebration(false)}
       />
     </div>
   );

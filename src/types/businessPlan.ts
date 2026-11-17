@@ -129,6 +129,8 @@ export interface BusinessPlanState {
   selectedProposalId: string | null;
   companyName: string;
   companySlogan: string;
+  corporateCitizenVision: string;
+  corporateCitizenConfirmed: boolean;
   answers: Record<string, string>;
   startupCosts: StartupCostItem[];
   financialAssumptions: FinancialAssumptions;

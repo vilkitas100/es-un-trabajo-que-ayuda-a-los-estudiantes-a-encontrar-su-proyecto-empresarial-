@@ -11,6 +11,7 @@ import {
   formatCRC,
 } from '../utils/businessLogic';
 import { downloadReportAsPDF } from '../utils/pdfExport';
+import { getQuestionElectricColor } from '../utils/questionColors';
 import {
   BankComparisonBarChart,
   CashflowProjectionChart,
@@ -198,6 +199,12 @@ export const FinalReportView: React.FC<FinalReportViewProps> = ({
                 <strong>Pasión origen:</strong> {state.passionText || 'Sin definir'}
                 {selectedModel ? ` · Modelo: ${selectedModel.name}` : ''}
               </p>
+              {state.corporateCitizenVision.trim() && (
+                <p className="text-sm text-slate-800 leading-relaxed">
+                  <strong style={{ color: '#FF007F' }}>Ciudadano Corporativo:</strong>{' '}
+                  {state.corporateCitizenVision}
+                </p>
+              )}
             </div>
 
             <div className="flex flex-wrap items-center gap-3 no-print">
@@ -442,15 +449,19 @@ export const FinalReportView: React.FC<FinalReportViewProps> = ({
                     <tbody className="divide-y divide-slate-200">
                       {modQuestions.map((q) => {
                         const ans = state.answers[q.id]?.trim();
+                        const qColor = getQuestionElectricColor(q.number);
                         return (
                           <tr key={q.id} className="bg-white">
                             <td
-                              className="py-2.5 px-3 font-mono tabular-nums font-bold align-top"
-                              style={{ color: mod.accentColor }}
+                              className="py-2.5 px-3 font-mono tabular-nums font-extrabold align-top"
+                              style={{ color: qColor.hex }}
                             >
                               {q.number}
                             </td>
-                            <td className="py-2.5 px-3 font-semibold text-slate-900 align-top">
+                            <td
+                              className="py-2.5 px-3 font-extrabold align-top"
+                              style={{ color: qColor.hex, textShadow: `0 0 8px ${qColor.glow}` }}
+                            >
                               {q.title}
                             </td>
                             <td className="py-2.5 px-3 text-slate-700 whitespace-pre-wrap align-top">

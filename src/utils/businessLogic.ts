@@ -309,6 +309,9 @@ export function buildReportMarkdown(state: BusinessPlanState): string {
   if (state.teamMembers) lines.push(`- **Equipo Colaborativo:** ${state.teamMembers}`);
   lines.push(`- **Docente:** ${state.teacherName || 'Prof. Liz Acuña'}`);
   lines.push(`- **Pasión Base:** ${state.passionText || 'Sin especificar'}`);
+  if (state.corporateCitizenVision.trim()) {
+    lines.push(`- **Ciudadano Corporativo (Persona Jurídica):** ${state.corporateCitizenVision.trim()}`);
+  }
   if (selectedModel) lines.push(`- **Modelo Seleccionado:** ${selectedModel.name}`);
   lines.push(`- **Progreso Académico:** ${progress.answeredCount}/${progress.totalQuestions} preguntas resueltas (${progress.percentage}%)`);
   lines.push('');
@@ -483,6 +486,7 @@ export function buildWordReportHtml(state: BusinessPlanState): string {
     <p><strong>Estudiante:</strong> ${escapeHtml(state.studentName || 'Sin especificar')} | <strong>Docente:</strong> ${escapeHtml(state.teacherName || 'Prof. Liz Acuña')}</p>
     ${state.teamMembers ? `<p><strong>Equipo Colaborativo:</strong> ${escapeHtml(state.teamMembers)}</p>` : ''}
     <p><strong>Pasión de Origen:</strong> ${escapeHtml(state.passionText || 'Sin definir')}</p>
+    ${state.corporateCitizenVision.trim() ? `<p><strong>Ciudadano Corporativo (Persona Jurídica):</strong> ${escapeHtml(state.corporateCitizenVision.trim())}</p>` : ''}
     <p><strong>Modelo de Negocio Elegido:</strong> ${escapeHtml(selectedModel?.name || 'Pendiente')} | <strong>Avance Académico:</strong> ${progress.answeredCount}/${progress.totalQuestions} preguntas (${progress.percentage}%)</p>
   </div>
 

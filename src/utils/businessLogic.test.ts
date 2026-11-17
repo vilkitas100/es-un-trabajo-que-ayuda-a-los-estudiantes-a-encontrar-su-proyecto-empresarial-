@@ -98,12 +98,14 @@ test('buildReportMarkdown and buildWordReportHtml include official title, 4 bank
   assert.ok(md.includes('Informe final : Toma de decision gerencial para construir una empresa'));
   assert.ok(md.includes('Prof: Liz Acuña. Toma de Decisiones Gerenciales para crear mi empresa.'));
   assert.ok(md.includes('Cacao Vivo CR'));
+  assert.ok(md.includes('Ciudadano Corporativo'));
   assert.ok(md.includes('51/51 preguntas resueltas'));
   assert.ok(md.includes('Banco Nacional de Costa Rica'));
   assert.ok(md.includes('40 / 40'));
 
   const wordHtml = buildWordReportHtml(demo);
   assert.ok(wordHtml.includes('Informe final : Toma de decision gerencial para construir una empresa'));
+  assert.ok(wordHtml.includes('Ciudadano Corporativo'));
   assert.ok(wordHtml.includes('51/51 preguntas'));
   assert.ok(wordHtml.includes('urn:schemas-microsoft-com:office:word'));
   assert.ok(wordHtml.includes('40 / 40'));

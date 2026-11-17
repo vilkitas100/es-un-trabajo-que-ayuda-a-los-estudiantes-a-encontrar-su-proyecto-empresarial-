@@ -52,6 +52,9 @@ export function downloadReportAsPDF(state: BusinessPlanState): void {
   const metaLines = [
     `Curso: Prof: Liz Acuña. Toma de Decisiones Gerenciales para crear mi empresa.`,
     `Pasion base: ${state.passionText || 'Sin definir'}`,
+    ...(state.corporateCitizenVision.trim()
+      ? [`Ciudadano corporativo (Persona juridica): ${state.corporateCitizenVision.trim()}`]
+      : []),
     `Modelo seleccionado: ${selectedModel?.name || 'Pendiente'}`,
     `Equipo: ${state.teamMembers || 'Individual'} | Docente: ${state.teacherName || 'Prof. Liz Acuña'}`,
     `Avance academico: ${progress.answeredCount}/${progress.totalQuestions} preguntas (${progress.percentage}%) | Rubrica SIG: ${rubricSummary.totalScore}/40 pts`,

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ArrowUpRight, CheckCircle2, Circle } from 'lucide-react';
+import { ArrowUpRight, CheckCircle2, Circle, HeartHandshake } from 'lucide-react';
 import { MODULES, QUESTIONS_40 } from '../data/questionsAndRubric';
 import { BusinessPlanState, ModuleId } from '../types/businessPlan';
 import {
@@ -7,17 +7,20 @@ import {
   calculateRubricTotal,
   isMeaningfulAnswer,
 } from '../utils/businessLogic';
+import { getQuestionElectricColor } from '../utils/questionColors';
 
 interface ProgressDashboardViewProps {
   state: BusinessPlanState;
   onJumpToQuestion: (moduleId: ModuleId, questionId: string) => void;
   onGoToReport: () => void;
+  onShowProgressCelebration?: () => void;
 }
 
 export const ProgressDashboardView: React.FC<ProgressDashboardViewProps> = ({
   state,
   onJumpToQuestion,
   onGoToReport,
+  onShowProgressCelebration,
 }) => {
   const [filter, setFilter] = useState<'all' | 'pending' | 'done'>('all');
   const progress = calculateAcademicProgress(state);
@@ -47,14 +50,26 @@ export const ProgressDashboardView: React.FC<ProgressDashboardViewProps> = ({
               {state.companyName ? ` · Empresa: ${state.companyName}` : ''} — Revisa tus {progress.totalQuestions} preguntas resueltas y el cumplimiento por módulo.
             </p>
           </div>
-          <button
-            type="button"
-            onClick={onGoToReport}
-            className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-white bg-[#1D4ED8] hover:bg-blue-800 rounded-xl transition-colors cursor-pointer whitespace-nowrap shrink-0"
-          >
-            Abrir Informe y Rúbrica
-            <ArrowUpRight className="w-4 h-4" />
-          </button>
+          <div className="flex flex-wrap items-center gap-3 shrink-0">
+            {onShowProgressCelebration && (
+              <button
+                type="button"
+                onClick={onShowProgressCelebration}
+                className="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-[#FF007F] bg-white border-2 border-pink-200 hover:bg-pink-50 rounded-xl transition-colors cursor-pointer whitespace-nowrap"
+              >
+                <HeartHandshake className="w-4 h-4" />
+                Recordar propósito humano
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={onGoToReport}
+              className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-white bg-[#1D4ED8] hover:bg-blue-800 rounded-xl transition-colors cursor-pointer whitespace-nowrap"
+            >
+              Abrir Informe y Rúbrica
+              <ArrowUpRight className="w-4 h-4" />
+            </button>
+          </div>
         </div>
 
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
@@ -192,6 +207,7 @@ export const ProgressDashboardView: React.FC<ProgressDashboardViewProps> = ({
           {filteredQuestions.map((q) => {
             const done = isMeaningfulAnswer(state.answers[q.id]);
             const mod = MODULES.find((m) => m.id === q.moduleId);
+            const qColor = getQuestionElectricColor(q.number);
             return (
               <div
                 key={q.id}
@@ -204,11 +220,11 @@ export const ProgressDashboardView: React.FC<ProgressDashboardViewProps> = ({
                     <Circle className="w-4 h-4 text-slate-300 shrink-0" />
                   )}
                   <div className="min-w-0">
-                    <div className="text-sm font-semibold text-slate-900 truncate">
-                      <span
-                        className="font-mono tabular-nums font-bold mr-1.5"
-                        style={{ color: mod?.accentColor || '#1D4ED8' }}
-                      >
+                    <div
+                      className="text-sm font-extrabold truncate"
+                      style={{ color: qColor.hex, textShadow: `0 0 8px ${qColor.glow}` }}
+                    >
+                      <span className="font-mono tabular-nums font-extrabold mr-1.5">
                         {q.number}.
                       </span>
                       {q.title}

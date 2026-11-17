@@ -26,6 +26,7 @@ import {
   formatCRC,
   isMeaningfulAnswer,
 } from '../utils/businessLogic';
+import { getQuestionElectricColor } from '../utils/questionColors';
 import {
   BankComparisonBarChart,
   CashflowProjectionChart,
@@ -44,6 +45,7 @@ interface PlanBuilderViewProps {
   onSelectBank: (bankId: string) => void;
   onToggleLegalItem: (id: string) => void;
   onUpdateLegalNotes: (id: string, notes: string) => void;
+  onEditCorporateCitizen: () => void;
   onGoToReport: () => void;
 }
 
@@ -64,6 +66,7 @@ export const PlanBuilderView: React.FC<PlanBuilderViewProps> = ({
   onSelectBank,
   onToggleLegalItem,
   onUpdateLegalNotes,
+  onEditCorporateCitizen,
   onGoToReport,
 }) => {
   const [coachLoadingId, setCoachLoadingId] = useState<string | null>(null);
@@ -228,6 +231,27 @@ export const PlanBuilderView: React.FC<PlanBuilderViewProps> = ({
             </div>
           </div>
         )}
+      </div>
+
+      {/* Corporate Citizen Summary Strip (editable anytime) */}
+      <div className="bg-white border-2 border-purple-200 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="space-y-1">
+          <div className="text-xs font-extrabold" style={{ color: '#FF007F' }}>
+            Ciudadano Corporativo (Antes de Iniciar el Plan)
+          </div>
+          <p className="text-sm text-slate-700 leading-relaxed">
+            {state.corporateCitizenVision.trim()
+              ? state.corporateCitizenVision
+              : 'Aún no has redactado cómo quieres que sea tu persona jurídica ante la sociedad.'}
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={onEditCorporateCitizen}
+          className="px-4 py-2 text-xs font-bold text-[#9D00FF] bg-white border border-purple-300 hover:bg-purple-50 rounded-xl transition-colors cursor-pointer whitespace-nowrap shrink-0"
+        >
+          {state.corporateCitizenVision.trim() ? 'Editar ciudadano corporativo' : 'Idear ciudadano corporativo'}
+        </button>
       </div>
 
       {/* Main 2-column Builder */}
@@ -768,21 +792,21 @@ export const PlanBuilderView: React.FC<PlanBuilderViewProps> = ({
               const coach = coachResults[q.id];
               const isCoachLoading = coachLoadingId === q.id;
               const qCoachErr = coachError[q.id];
+              const qColor = getQuestionElectricColor(q.number);
 
               return (
                 <article
                   key={q.id}
                   id={`question-${q.id}`}
-                  className={`bg-white border-2 rounded-2xl p-5 sm:p-6 space-y-3 transition-colors ${
-                    answered ? 'border-green-300' : 'border-slate-200'
-                  }`}
+                  className="bg-white border-2 rounded-2xl p-5 sm:p-6 space-y-3 transition-colors"
+                  style={{ borderColor: answered ? '#22C55E' : `${qColor.hex}55` }}
                 >
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div className="space-y-1">
                       <div className="flex flex-wrap items-center gap-2 text-xs">
                         <span
-                          className="font-mono tabular-nums font-bold"
-                          style={{ color: currentModule.accentColor }}
+                          className="font-mono tabular-nums font-extrabold"
+                          style={{ color: qColor.hex }}
                         >
                           Pregunta {q.number} de {progress.totalQuestions}
                         </span>
@@ -801,8 +825,11 @@ export const PlanBuilderView: React.FC<PlanBuilderViewProps> = ({
                       </div>
                       <label
                         htmlFor={`input-${q.id}`}
-                        className="block text-base sm:text-lg font-bold"
-                        style={{ color: currentModule.accentColor }}
+                        className="block text-base sm:text-lg font-extrabold tracking-tight"
+                        style={{
+                          color: qColor.hex,
+                          textShadow: `0 0 10px ${qColor.glow}`,
+                        }}
                       >
                         {q.title}
                       </label>

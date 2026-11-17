@@ -67,6 +67,7 @@ export const GeminiMentorDrawer: React.FC<GeminiMentorDrawerProps> = ({
             studentName: state.studentName,
             companyName: state.companyName,
             passion: state.passionText,
+            corporateCitizenVision: state.corporateCitizenVision,
             selectedBusinessModel: selectedModel?.name ?? null,
             progressAnswered: `${progress.answeredCount}/${progress.totalQuestions}`,
             totalStartupCostCRC: financial.totalStartupCostCRC,
