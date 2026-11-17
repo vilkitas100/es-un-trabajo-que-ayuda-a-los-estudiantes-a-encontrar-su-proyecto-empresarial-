@@ -92,8 +92,8 @@ export const PassionDiscoveryView: React.FC<PassionDiscoveryViewProps> = ({
               <span aria-hidden="true">·</span>
               <span className="text-[#15803D]">Costa Rica</span>
             </div>
-            <h1 className="text-3xl sm:text-4xl lg:text-[2.55rem] font-bold tracking-tight text-[#1D4ED8] leading-[1.12] text-balance">
-              Construye tu empresa simulada partiendo de lo que amas hacer
+            <h1 className="font-executive text-2xl sm:text-3xl lg:text-[2.1rem] font-bold uppercase tracking-[0.02em] text-[#EA580C] leading-[1.22] text-balance">
+              CONSTRUYE TU EMPRESA SIMULADA PARTIENDO DE LO QUE AMAS HACER
             </h1>
             <p className="text-base text-slate-700 leading-relaxed max-w-2xl">
               Ingresa tu nombre, el nombre de tu empresa y tu pasión. Envíala a Gemini para estudiar modelos de negocio viables en Costa Rica, resuelve las {totalQuestions} preguntas gerenciales, compara 4 bancos y genera tu informe final con la Rúbrica SIG de 40 puntos.
@@ -152,7 +152,7 @@ export const PassionDiscoveryView: React.FC<PassionDiscoveryViewProps> = ({
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label htmlFor="student-name" className="block text-sm font-semibold text-[#1D4ED8] mb-1.5">
-                  Nombre del estudiante <span className="text-[#DC2626]">*</span>
+                  Nombre del estudiante <span className="text-[#DB2777]">*</span>
                 </label>
                 <input
                   id="student-name"
@@ -166,7 +166,7 @@ export const PassionDiscoveryView: React.FC<PassionDiscoveryViewProps> = ({
               </div>
               <div>
                 <label htmlFor="company-name-top" className="block text-sm font-semibold text-[#15803D] mb-1.5">
-                  Nombre de tu empresa <span className="text-[#DC2626]">*</span>
+                  Nombre de tu empresa <span className="text-[#DB2777]">*</span>
                 </label>
                 <input
                   id="company-name-top"
@@ -208,7 +208,7 @@ export const PassionDiscoveryView: React.FC<PassionDiscoveryViewProps> = ({
 
             <div>
               <label htmlFor="passion-input" className="block text-sm font-semibold text-[#C2410C] mb-1.5">
-                ¿Qué es lo que más amas hacer? (Tu talento, hobby o vocación) <span className="text-[#DC2626]">*</span>
+                ¿Qué es lo que más amas hacer? (Tu talento, hobby o vocación) <span className="text-[#DB2777]">*</span>
               </label>
               <textarea
                 id="passion-input"
@@ -264,8 +264,8 @@ export const PassionDiscoveryView: React.FC<PassionDiscoveryViewProps> = ({
             </div>
 
             {errorMsg && (
-              <div role="alert" className="flex items-start gap-2.5 p-3.5 rounded-xl bg-white border-2 border-red-300 text-sm text-[#DC2626] font-medium">
-                <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-[#DC2626]" />
+              <div role="alert" className="flex items-start gap-2.5 p-3.5 rounded-xl bg-white border-2 border-pink-300 text-sm text-[#BE185D] font-medium">
+                <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-[#BE185D]" />
                 <span>{errorMsg}</span>
               </div>
             )}
@@ -386,7 +386,7 @@ export const PassionDiscoveryView: React.FC<PassionDiscoveryViewProps> = ({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {state.proposals.map((prop, idx) => {
               const isSelected = prop.id === state.selectedProposalId;
-              const titlePalette = ['#DC2626', '#1D4ED8', '#7E22CE', '#C2410C'];
+              const titlePalette = ['#0D9488', '#0055FF', '#7E22CE', '#5C2808'];
               const cardTitleColor = titlePalette[idx % titlePalette.length];
               return (
                 <article

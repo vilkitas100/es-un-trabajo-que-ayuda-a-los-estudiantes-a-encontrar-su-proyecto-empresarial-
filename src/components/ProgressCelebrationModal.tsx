@@ -72,7 +72,7 @@ const CONFETTI = [
   { left: '36%', top: '20%', color: '#FF5500', delay: '0.15s', shape: 'star' },
   { left: '49%', top: '8%', color: '#9D00FF', delay: '0.35s', shape: 'circle' },
   { left: '62%', top: '18%', color: '#F59E0B', delay: '0.1s', shape: 'rect' },
-  { left: '74%', top: '10%', color: '#FF0033', delay: '0.45s', shape: 'star' },
+  { left: '74%', top: '10%', color: '#0D9488', delay: '0.45s', shape: 'star' },
   { left: '84%', top: '22%', color: '#008ECC', delay: '0.25s', shape: 'circle' },
   { left: '92%', top: '14%', color: '#CC00EE', delay: '0.5s', shape: 'rect' },
 ] as const;
@@ -183,7 +183,7 @@ export const ProgressCelebrationModal: React.FC<ProgressCelebrationModalProps> =
               <FlowerSvg petalColor="#FF5500" centerColor="#FDE047" className="w-8 h-8 sm:w-11 sm:h-11" />
             </div>
             <div className="animate-float-slow z-10 shrink-0">
-              <BalloonSvg color="#FF0033" className="w-7 h-12 sm:w-11 sm:h-18" />
+              <BalloonSvg color="#0D9488" className="w-7 h-12 sm:w-11 sm:h-18" />
             </div>
           </div>
 
@@ -228,7 +228,7 @@ export const ProgressCelebrationModal: React.FC<ProgressCelebrationModalProps> =
                 <FlowerSvg petalColor="#EC4899" centerColor="#FDE047" className="w-6 h-6" />
               </div>
               <div className="animate-pulse-heart">
-                <HeartSvg color="#FF0033" className="w-5 h-5" />
+                <HeartSvg color="#DB2777" className="w-5 h-5" />
               </div>
               <div className="animate-spin-bloom">
                 <FlowerSvg petalColor="#9D00FF" centerColor="#FACC15" className="w-6 h-6" />

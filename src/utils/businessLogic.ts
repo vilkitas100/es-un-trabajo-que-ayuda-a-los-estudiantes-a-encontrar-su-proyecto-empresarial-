@@ -4,6 +4,7 @@ import {
   CostaRicaBankResearch,
   FinancialAssumptions,
   ModuleId,
+  QuestionDefinition,
   RubricScoreValue,
   StartupCostItem,
 } from '../types/businessPlan';
@@ -299,6 +300,19 @@ export const LEGAL_PERSON_PHILOSOPHICAL_QUESTION =
 
 export function isConscienceReflectionComplete(answer: string | undefined | null): boolean {
   return (answer ?? '').trim().length >= MIN_CONSCIENCE_CHARS;
+}
+
+export function getPendingQuestions(state: BusinessPlanState): QuestionDefinition[] {
+  return QUESTIONS_40.filter((q) => !isMeaningfulAnswer(state.answers[q.id]));
+}
+
+export function getModulePendingQuestions(
+  state: BusinessPlanState,
+  moduleId: ModuleId
+): QuestionDefinition[] {
+  return QUESTIONS_40.filter(
+    (q) => q.moduleId === moduleId && !isMeaningfulAnswer(state.answers[q.id])
+  );
 }
 
 export function buildReportMarkdown(state: BusinessPlanState): string {

@@ -11,7 +11,7 @@ import {
   Sparkles,
 } from 'lucide-react';
 import { MODULES, QUESTIONS_40, SIG_RUBRIC_CRITERIA } from '../data/questionsAndRubric';
-import { BusinessPlanState, RubricScoreValue } from '../types/businessPlan';
+import { BusinessPlanState, ModuleId, RubricScoreValue } from '../types/businessPlan';
 import {
   buildWordReportHtml,
   calculateAcademicProgress,
@@ -19,6 +19,7 @@ import {
   calculateFinancialSummary,
   calculateRubricTotal,
   formatCRC,
+  getPendingQuestions,
   isConscienceReflectionComplete,
 } from '../utils/businessLogic';
 import { downloadReportAsPDF } from '../utils/pdfExport';
@@ -41,6 +42,7 @@ interface FinalReportViewProps {
     finalComment: string
   ) => void;
   onRequestConscienceModal: (pendingAction: PendingExportAction) => void;
+  onJumpToQuestion: (moduleId: ModuleId, questionId: string) => void;
 }
 
 export const FinalReportView: React.FC<FinalReportViewProps> = ({
@@ -49,9 +51,11 @@ export const FinalReportView: React.FC<FinalReportViewProps> = ({
   onSetRubricComment,
   onApplyAIRubricEvaluation,
   onRequestConscienceModal,
+  onJumpToQuestion,
 }) => {
   const [isEvaluating, setIsEvaluating] = useState(false);
   const [evalError, setEvalError] = useState<string | null>(null);
+  const [pendingNotice, setPendingNotice] = useState<string | null>(null);
   const [bannerImgFailed, setBannerImgFailed] = useState(false);
 
   const progress = calculateAcademicProgress(state);
@@ -123,12 +127,28 @@ export const FinalReportView: React.FC<FinalReportViewProps> = ({
   };
 
   const reflectionComplete = isConscienceReflectionComplete(state.legalPersonConscienceAnswer);
+  const pendingQuestions = getPendingQuestions(state);
+  const allQuestionsComplete = pendingQuestions.length === 0;
+  const canExport = allQuestionsComplete && reflectionComplete;
+
+  const ensureCanExport = (action: PendingExportAction): boolean => {
+    if (!allQuestionsComplete) {
+      const first = pendingQuestions[0];
+      setPendingNotice(
+        `Todas las ${progress.totalQuestions} preguntas son obligatorias antes de descargar el informe. Faltan ${pendingQuestions.length} por responder (siguiente pendiente: Pregunta #${first.number}).`
+      );
+      return false;
+    }
+    setPendingNotice(null);
+    if (!reflectionComplete) {
+      onRequestConscienceModal(action);
+      return false;
+    }
+    return true;
+  };
 
   const handleDownloadWord = () => {
-    if (!reflectionComplete) {
-      onRequestConscienceModal('word');
-      return;
-    }
+    if (!ensureCanExport('word')) return;
     const htmlContent = buildWordReportHtml(state);
     const blob = new Blob(['\ufeff', htmlContent], {
       type: 'application/msword;charset=utf-8',
@@ -145,25 +165,19 @@ export const FinalReportView: React.FC<FinalReportViewProps> = ({
   };
 
   const handleDownloadPDF = () => {
-    if (!reflectionComplete) {
-      onRequestConscienceModal('pdf');
-      return;
-    }
+    if (!ensureCanExport('pdf')) return;
     downloadReportAsPDF(state);
   };
 
   const handlePrintReport = () => {
-    if (!reflectionComplete) {
-      onRequestConscienceModal('print');
-      return;
-    }
+    if (!ensureCanExport('print')) return;
     window.print();
   };
 
   const roadmapPhases = [
     {
       phase: 'Fase 1 · Mes 0 (Formalización y Prototipo)',
-      color: '#DC2626',
+      color: '#0D9488',
       items: [
         'Inscripción en Hacienda (ATV/TRIBU-CR) y activación de Facturación Electrónica.',
         'Solicitud de Uso de Suelo, Permiso Sanitario del Ministerio de Salud y Patente Municipal.',
@@ -238,12 +252,37 @@ export const FinalReportView: React.FC<FinalReportViewProps> = ({
                 </p>
               )}
 
+              {!allQuestionsComplete && (
+                <div
+                  role="alert"
+                  className="p-3.5 rounded-xl bg-white border-2 border-teal-400 flex flex-col sm:flex-row sm:items-center justify-between gap-3 no-print"
+                >
+                  <div className="flex items-start gap-2.5 text-xs sm:text-sm text-[#0F766E] font-semibold">
+                    <AlertCircle className="w-4 h-4 text-[#0D9488] shrink-0 mt-0.5" />
+                    <span>
+                      {pendingNotice ||
+                        `Todas las ${progress.totalQuestions} preguntas son obligatorias: faltan ${pendingQuestions.length} por responder para desbloquear la descarga del informe.`}
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      onJumpToQuestion(pendingQuestions[0].moduleId, pendingQuestions[0].id)
+                    }
+                    className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 text-xs font-bold text-white bg-[#0D9488] hover:bg-teal-700 rounded-xl transition-colors cursor-pointer whitespace-nowrap shrink-0"
+                  >
+                    Ir a Pregunta #{pendingQuestions[0].number}
+                  </button>
+                </div>
+              )}
+
               {reflectionComplete ? (
                 <div className="p-3.5 rounded-xl bg-white border border-purple-200 space-y-1.5">
                   <div className="flex flex-wrap items-center justify-between gap-2">
                     <span className="inline-flex items-center gap-1.5 text-xs font-bold text-[#15803D]">
                       <CheckCircle2 className="w-3.5 h-3.5" />
-                      Conciencia Filosófica de la Persona Jurídica (Descarga desbloqueada)
+                      Conciencia Filosófica de la Persona Jurídica (
+                      {allQuestionsComplete ? 'Descarga desbloqueada' : 'Faltan preguntas obligatorias'})
                     </span>
                     <button
                       type="button"
@@ -262,7 +301,7 @@ export const FinalReportView: React.FC<FinalReportViewProps> = ({
                   <div className="flex items-start gap-2.5 text-xs sm:text-sm text-slate-800">
                     <Scale className="w-4 h-4 text-[#FF007F] shrink-0 mt-0.5" />
                     <span>
-                      <strong className="text-[#DC2626]">
+                      <strong className="text-[#DB2777]">
                         ¿Eres consciente de lo que significa la creación de una persona jurídica?
                       </strong>{' '}
                       Responde la pregunta profunda y filosófica para desbloquear la descarga del informe.
@@ -283,25 +322,25 @@ export const FinalReportView: React.FC<FinalReportViewProps> = ({
               <button
                 type="button"
                 onClick={handleDownloadPDF}
-                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-[#DC2626] hover:bg-red-700 rounded-xl transition-colors cursor-pointer whitespace-nowrap"
+                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-[#0D9488] hover:bg-teal-700 rounded-xl transition-colors cursor-pointer whitespace-nowrap"
               >
-                {reflectionComplete ? <Download className="w-4 h-4" /> : <Lock className="w-4 h-4" />}
+                {canExport ? <Download className="w-4 h-4" /> : <Lock className="w-4 h-4" />}
                 Descargar en PDF
               </button>
               <button
                 type="button"
                 onClick={handleDownloadWord}
-                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-[#1D4ED8] hover:bg-blue-800 rounded-xl transition-colors cursor-pointer whitespace-nowrap"
+                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-[#0055FF] hover:bg-blue-700 rounded-xl transition-colors cursor-pointer whitespace-nowrap"
               >
-                {reflectionComplete ? <FileText className="w-4 h-4" /> : <Lock className="w-4 h-4" />}
+                {canExport ? <FileText className="w-4 h-4" /> : <Lock className="w-4 h-4" />}
                 Descargar en Word (.doc)
               </button>
               <button
                 type="button"
                 onClick={handlePrintReport}
-                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-[#7C2D12] bg-white border-2 border-amber-300 hover:bg-amber-50 rounded-xl transition-colors cursor-pointer whitespace-nowrap"
+                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-[#5C2808] bg-white border-2 border-amber-300 hover:bg-amber-50 rounded-xl transition-colors cursor-pointer whitespace-nowrap"
               >
-                {reflectionComplete ? <Printer className="w-4 h-4" /> : <Lock className="w-4 h-4" />}
+                {canExport ? <Printer className="w-4 h-4" /> : <Lock className="w-4 h-4" />}
                 Imprimir
               </button>
             </div>
@@ -328,7 +367,7 @@ export const FinalReportView: React.FC<FinalReportViewProps> = ({
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 divide-y sm:divide-y-0 sm:divide-x divide-slate-200 border-t border-slate-200 bg-white">
           <div className="p-4">
             <span className="text-xs text-slate-500 block">Preguntas Resueltas</span>
-            <span className="text-lg font-bold font-mono tabular-nums text-[#DC2626]">
+            <span className="text-lg font-bold font-mono tabular-nums text-[#0D9488]">
               {progress.answeredCount} / {progress.totalQuestions}
             </span>
           </div>
@@ -554,13 +593,13 @@ export const FinalReportView: React.FC<FinalReportViewProps> = ({
       </section>
 
       {/* Mandatory SIG Rubric (10 Criteria x 4 Points = 40 Points) */}
-      <section id="rubrica-sig" className="bg-white border-2 border-red-200 rounded-2xl p-6 sm:p-8 space-y-6">
+      <section id="rubrica-sig" className="bg-white border-2 border-teal-200 rounded-2xl p-6 sm:p-8 space-y-6">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="space-y-1">
             <span className="text-xs font-bold text-[#7E22CE]">
               Instrumento Oficial de Evaluación (Base 40 Puntos)
             </span>
-            <h2 className="text-xl sm:text-2xl font-bold text-[#DC2626]">
+            <h2 className="text-xl sm:text-2xl font-bold text-[#5C2808]">
               Rúbrica de la propuesta de sistema de información gerencial
             </h2>
             <p className="text-sm text-slate-600">
@@ -588,8 +627,8 @@ export const FinalReportView: React.FC<FinalReportViewProps> = ({
         </div>
 
         {evalError && (
-          <div role="alert" className="flex items-start gap-2.5 p-3.5 rounded-xl bg-white border-2 border-red-300 text-sm text-[#DC2626]">
-            <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-[#DC2626]" />
+          <div role="alert" className="flex items-start gap-2.5 p-3.5 rounded-xl bg-white border-2 border-pink-300 text-sm text-[#BE185D]">
+            <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-[#BE185D]" />
             <span>{evalError}</span>
           </div>
         )}

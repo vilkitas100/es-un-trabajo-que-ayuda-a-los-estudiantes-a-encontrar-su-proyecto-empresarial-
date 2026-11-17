@@ -8,8 +8,8 @@ const CATEGORY_COLORS: Record<string, string> = {
   'Capital de Trabajo': '#15803D',
   'Inventario Inicial': '#EA580C',
   'Permisos y Legal': '#7E22CE',
-  'Tecnología y SIG': '#DC2626',
-  'Marketing Lanzamiento': '#7C2D12',
+  'Tecnología y SIG': '#0D9488',
+  'Marketing Lanzamiento': '#5C2808',
 };
 
 export const StartupCostDonutChart: React.FC<{
@@ -160,7 +160,7 @@ export const CashflowProjectionChart: React.FC<{
         {activePoint && (
           <div className="text-xs font-mono tabular-nums text-slate-700 bg-slate-100 px-3 py-1 rounded-md">
             {activePoint.label}: Ingresos {formatCRC(activePoint.revenueCRC)} · Flujo acum.{' '}
-            <span className={activePoint.cumulativeCashflowCRC >= 0 ? 'text-emerald-700 font-semibold' : 'text-rose-700 font-semibold'}>
+            <span className={activePoint.cumulativeCashflowCRC >= 0 ? 'text-emerald-700 font-semibold' : 'text-[#5C2808] font-semibold'}>
               {formatCRC(activePoint.cumulativeCashflowCRC)}
             </span>
           </div>
@@ -323,7 +323,7 @@ export const RubricProfileChart: React.FC<{
           const val = scores[criterion.id] ?? 1;
           const pct = (val / 4) * 100;
           const barColor =
-            val === 4 ? 'bg-emerald-600' : val === 3 ? 'bg-indigo-600' : val === 2 ? 'bg-amber-500' : 'bg-rose-500';
+            val === 4 ? 'bg-emerald-600' : val === 3 ? 'bg-indigo-600' : val === 2 ? 'bg-amber-500' : 'bg-[#DB2777]';
           return (
             <div key={criterion.id} className="grid grid-cols-12 items-center gap-3">
               <span className="col-span-6 sm:col-span-5 text-xs text-slate-700 truncate" title={criterion.title}>

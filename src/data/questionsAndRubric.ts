@@ -15,10 +15,10 @@ export const MODULES: ModuleDefinition[] = [
     title: 'Módulo 1. Pasión, Propósito de Vida, Misión, Visión y Entorno',
     description:
       'Define a quién ayudas, tu misión profesional, problema, diferenciación, filosofía empresarial (10 principios) y estudios de entorno.',
-    accentColor: '#DC2626', // Rojo vibrante
-    accentBgClass: 'bg-red-50',
-    accentTextClass: 'text-red-600',
-    accentBorderClass: 'border-red-200',
+    accentColor: '#0D9488', // Turquesa vibrante
+    accentBgClass: 'bg-teal-50',
+    accentTextClass: 'text-teal-700',
+    accentBorderClass: 'border-teal-200',
   },
   {
     id: 'm2_operacion_sig',

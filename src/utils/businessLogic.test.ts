@@ -8,6 +8,8 @@ import {
   calculateFinancialSummary,
   calculateMonthlyLoanPayment,
   calculateRubricTotal,
+  getModulePendingQuestions,
+  getPendingQuestions,
   isConscienceReflectionComplete,
 } from './businessLogic';
 import { createDemoBusinessPlanState, createEmptyBusinessPlanState } from '../data/demoProject';
@@ -130,4 +132,18 @@ test('isConscienceReflectionComplete enforces minimum thoughtful answer and expo
   const wordHtml = buildWordReportHtml(demo);
   assert.ok(wordHtml.includes('Conciencia Filosófica de la Persona Jurídica'));
   assert.ok(wordHtml.includes(thoughtful));
+});
+
+test('getPendingQuestions and getModulePendingQuestions accurately track mandatory unanswered questions', () => {
+  const empty = createEmptyBusinessPlanState();
+  assert.equal(getPendingQuestions(empty).length, 51);
+  assert.equal(getModulePendingQuestions(empty, 'm1_pasion').length, 15);
+
+  empty.answers.q1 = 'Respuesta amplia y detallada sobre la pasión emprendedora del estudiante.';
+  assert.equal(getPendingQuestions(empty).length, 50);
+  assert.equal(getModulePendingQuestions(empty, 'm1_pasion').length, 14);
+
+  const demo = createDemoBusinessPlanState();
+  assert.equal(getPendingQuestions(demo).length, 0);
+  assert.equal(getModulePendingQuestions(demo, 'm1_pasion').length, 0);
 });

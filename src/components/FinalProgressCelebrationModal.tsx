@@ -105,7 +105,7 @@ const CONFETTI = [
   { left: '37%', top: '20%', color: '#FF5500', delay: '0.15s', shape: 'star' },
   { left: '50%', top: '8%', color: '#9D00FF', delay: '0.35s', shape: 'circle' },
   { left: '63%', top: '18%', color: '#F59E0B', delay: '0.1s', shape: 'rect' },
-  { left: '75%', top: '10%', color: '#FF0033', delay: '0.45s', shape: 'star' },
+  { left: '75%', top: '10%', color: '#0D9488', delay: '0.45s', shape: 'star' },
   { left: '85%', top: '22%', color: '#008ECC', delay: '0.25s', shape: 'circle' },
   { left: '93%', top: '14%', color: '#CC00EE', delay: '0.5s', shape: 'rect' },
 ] as const;
@@ -241,7 +241,7 @@ export const FinalProgressCelebrationModal: React.FC<FinalProgressCelebrationMod
               <FlowerSvg petalColor="#F59E0B" centerColor="#7C2D12" className="w-7 h-7 sm:w-9 sm:h-9" />
             </div>
             <div className="animate-pulse-heart z-10 shrink-0">
-              <HeartSvg color="#FF0033" className="w-6 h-6 sm:w-8 sm:h-8" />
+              <HeartSvg color="#DB2777" className="w-6 h-6 sm:w-8 sm:h-8" />
             </div>
             <div className="animate-float-alt z-10 shrink-0">
               <BalloonSvg color="#0055FF" className="w-8 h-12 sm:w-10 sm:h-16" />
@@ -287,7 +287,7 @@ export const FinalProgressCelebrationModal: React.FC<FinalProgressCelebrationMod
               <span>Pregunta de Conciencia y Reflexión Filosófica</span>
             </div>
 
-            <p className="text-base sm:text-lg font-extrabold text-[#DC2626] leading-snug">
+            <p className="text-base sm:text-lg font-extrabold text-[#DB2777] leading-snug">
               ¿Eres consciente de lo que significa la creación de una persona jurídica?
             </p>
 
@@ -332,7 +332,7 @@ export const FinalProgressCelebrationModal: React.FC<FinalProgressCelebrationMod
             />
 
             {validationError && (
-              <p role="alert" className="text-xs font-semibold text-[#DC2626]">
+              <p role="alert" className="text-xs font-semibold text-[#BE185D]">
                 {validationError}
               </p>
             )}

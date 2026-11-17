@@ -17,7 +17,7 @@ interface CorporateCitizenGatewayProps {
   value: string;
   onChange: (value: string) => void;
   onConfirmAndStartPlan: () => void;
-  onSkipToPlan: () => void;
+  onBackToPassion: () => void;
 }
 
 const CITIZEN_SPARKS = [
@@ -32,7 +32,7 @@ export const CorporateCitizenGateway: React.FC<CorporateCitizenGatewayProps> = (
   value,
   onChange,
   onConfirmAndStartPlan,
-  onSkipToPlan,
+  onBackToPassion,
 }) => {
   const [validationHint, setValidationHint] = useState<string | null>(null);
   const [pulseKey, setPulseKey] = useState(0);
@@ -41,7 +41,7 @@ export const CorporateCitizenGateway: React.FC<CorporateCitizenGatewayProps> = (
     e.preventDefault();
     if (value.trim().length < 10) {
       setValidationHint(
-        'Por favor describe en al menos una frase cómo quieres que sea tu ciudadano corporativo antes de iniciar el plan, o elige "Ir directo al Plan" si deseas completarlo después.'
+        'Esta pregunta es obligatoria: describe en al menos 10 caracteres cómo quieres que sea tu ciudadano corporativo antes de iniciar el plan.'
       );
       return;
     }
@@ -197,9 +197,9 @@ export const CorporateCitizenGateway: React.FC<CorporateCitizenGatewayProps> = (
           {validationHint && (
             <div
               role="alert"
-              className="flex items-start gap-2.5 p-3.5 rounded-xl bg-white border-2 border-red-300 text-xs sm:text-sm text-[#DC2626] font-semibold"
+              className="flex items-start gap-2.5 p-3.5 rounded-xl bg-white border-2 border-pink-300 text-xs sm:text-sm text-[#BE185D] font-semibold"
             >
-              <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-[#DC2626]" />
+              <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-[#BE185D]" />
               <span>{validationHint}</span>
             </div>
           )}
@@ -207,10 +207,10 @@ export const CorporateCitizenGateway: React.FC<CorporateCitizenGatewayProps> = (
           <div className="pt-3 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 border-t border-slate-200">
             <button
               type="button"
-              onClick={onSkipToPlan}
-              className="px-4 py-3 text-xs sm:text-sm font-semibold text-slate-600 hover:text-slate-900 bg-white border border-slate-300 hover:bg-slate-50 rounded-xl transition-colors cursor-pointer whitespace-nowrap"
+              onClick={onBackToPassion}
+              className="px-4 py-3 text-xs sm:text-sm font-semibold text-[#0F766E] hover:bg-teal-50 bg-white border border-teal-300 rounded-xl transition-colors cursor-pointer whitespace-nowrap"
             >
-              Saltar por ahora e ir directo al Plan
+              Volver a 1. Pasión
             </button>
 
             <button

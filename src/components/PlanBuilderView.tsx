@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import {
+  AlertCircle,
   Check,
   ChevronLeft,
   ChevronRight,
@@ -24,6 +25,8 @@ import {
   calculateBankComparisonMetrics,
   calculateFinancialSummary,
   formatCRC,
+  getModulePendingQuestions,
+  getPendingQuestions,
   isMeaningfulAnswer,
 } from '../utils/businessLogic';
 import { getQuestionElectricColor } from '../utils/questionColors';
@@ -72,6 +75,12 @@ export const PlanBuilderView: React.FC<PlanBuilderViewProps> = ({
   const [coachLoadingId, setCoachLoadingId] = useState<string | null>(null);
   const [coachResults, setCoachResults] = useState<Record<string, CoachSuggestion>>({});
   const [coachError, setCoachError] = useState<Record<string, string>>({});
+  const [mandatoryNotice, setMandatoryNotice] = useState<{
+    message: string;
+    targetModuleId: ModuleId;
+    targetQuestionId: string;
+    targetQuestionNumber: number;
+  } | null>(null);
 
   const progress = calculateAcademicProgress(state);
   const financial = calculateFinancialSummary(state.startupCosts, state.financialAssumptions);
@@ -408,7 +417,7 @@ export const PlanBuilderView: React.FC<PlanBuilderViewProps> = ({
                             type="button"
                             onClick={() => handleDeleteCostRow(item.id)}
                             aria-label={`Eliminar rubro ${item.concept}`}
-                            className="p-1.5 text-slate-400 hover:text-[#DC2626] rounded-lg transition-colors cursor-pointer"
+                            className="p-1.5 text-slate-400 hover:text-[#DB2777] rounded-lg transition-colors cursor-pointer"
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>
@@ -523,7 +532,7 @@ export const PlanBuilderView: React.FC<PlanBuilderViewProps> = ({
                   <span className="text-xs text-slate-500 block">Utilidad Neta Meta/mes</span>
                   <span
                     className={`text-base font-bold font-mono tabular-nums ${
-                      financial.monthlyNetProfitCRC >= 0 ? 'text-[#15803D]' : 'text-[#DC2626]'
+                      financial.monthlyNetProfitCRC >= 0 ? 'text-[#15803D]' : 'text-[#5C2808]'
                     }`}
                   >
                     {formatCRC(financial.monthlyNetProfitCRC)}
@@ -811,8 +820,8 @@ export const PlanBuilderView: React.FC<PlanBuilderViewProps> = ({
                           Pregunta {q.number} de {progress.totalQuestions}
                         </span>
                         <span aria-hidden="true" className="text-slate-300">·</span>
-                        <span className={answered ? 'font-semibold text-[#15803D]' : 'text-slate-500'}>
-                          {answered ? 'Completada' : 'Pendiente (mín. 12 caracteres)'}
+                        <span className={answered ? 'font-semibold text-[#15803D]' : 'font-semibold text-[#BE185D]'}>
+                          {answered ? 'Completada' : 'Obligatoria · Pendiente (mín. 12 caracteres)'}
                         </span>
                         {linkedCriterion && (
                           <>
@@ -831,7 +840,7 @@ export const PlanBuilderView: React.FC<PlanBuilderViewProps> = ({
                           textShadow: `0 0 10px ${qColor.glow}`,
                         }}
                       >
-                        {q.title}
+                        {q.title} <span className="text-[#DB2777]">*</span>
                       </label>
                     </div>
 
@@ -857,13 +866,16 @@ export const PlanBuilderView: React.FC<PlanBuilderViewProps> = ({
                     id={`input-${q.id}`}
                     rows={3}
                     value={answer}
-                    onChange={(e) => onUpdateAnswer(q.id, e.target.value)}
+                    onChange={(e) => {
+                      onUpdateAnswer(q.id, e.target.value);
+                      if (mandatoryNotice) setMandatoryNotice(null);
+                    }}
                     placeholder={q.placeholder}
                     className="w-full px-3.5 py-2.5 text-sm bg-white border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600"
                   />
 
                   {qCoachErr && (
-                    <p className="text-xs text-[#DC2626]">{qCoachErr}</p>
+                    <p className="text-xs text-[#BE185D]">{qCoachErr}</p>
                   )}
 
                   {coach && (
@@ -896,14 +908,42 @@ export const PlanBuilderView: React.FC<PlanBuilderViewProps> = ({
             })}
           </div>
 
+          {mandatoryNotice && (
+            <div
+              role="alert"
+              className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-xl bg-white border-2 border-pink-400 text-sm text-[#BE185D] font-semibold"
+            >
+              <div className="flex items-start gap-2.5">
+                <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-[#DB2777]" />
+                <span>{mandatoryNotice.message}</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  onChangeModule(mandatoryNotice.targetModuleId);
+                  window.setTimeout(() => {
+                    const el = document.getElementById(`question-${mandatoryNotice.targetQuestionId}`);
+                    const input = document.getElementById(`input-${mandatoryNotice.targetQuestionId}`);
+                    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    if (input) input.focus();
+                  }, 80);
+                }}
+                className="px-3.5 py-2 text-xs font-bold text-white bg-[#0D9488] hover:bg-teal-700 rounded-xl transition-colors cursor-pointer whitespace-nowrap shrink-0"
+              >
+                Ir a Pregunta #{mandatoryNotice.targetQuestionNumber}
+              </button>
+            </div>
+          )}
+
           {/* Module Pagination Footer */}
           <div className="flex items-center justify-between gap-4 pt-2">
             <button
               type="button"
               disabled={currentModuleIdx <= 0}
-              onClick={() =>
-                currentModuleIdx > 0 && onChangeModule(MODULES[currentModuleIdx - 1].id)
-              }
+              onClick={() => {
+                setMandatoryNotice(null);
+                if (currentModuleIdx > 0) onChangeModule(MODULES[currentModuleIdx - 1].id);
+              }}
               className="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-slate-700 bg-white border border-slate-300 hover:bg-slate-50 disabled:opacity-40 rounded-xl transition-colors cursor-pointer whitespace-nowrap"
             >
               <ChevronLeft className="w-4 h-4" />
@@ -913,8 +953,27 @@ export const PlanBuilderView: React.FC<PlanBuilderViewProps> = ({
             {currentModuleIdx < MODULES.length - 1 ? (
               <button
                 type="button"
-                onClick={() => onChangeModule(MODULES[currentModuleIdx + 1].id)}
-                className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-white bg-[#1D4ED8] hover:bg-blue-800 rounded-xl transition-colors cursor-pointer whitespace-nowrap"
+                onClick={() => {
+                  const modulePending = getModulePendingQuestions(state, currentModule.id);
+                  if (modulePending.length > 0) {
+                    const first = modulePending[0];
+                    const nums = modulePending.map((item) => `#${item.number}`).join(', ');
+                    setMandatoryNotice({
+                      message: `Todas las preguntas son obligatorias. Completa las pendientes de este módulo antes de continuar: ${nums}.`,
+                      targetModuleId: currentModule.id,
+                      targetQuestionId: first.id,
+                      targetQuestionNumber: first.number,
+                    });
+                    const el = document.getElementById(`question-${first.id}`);
+                    const input = document.getElementById(`input-${first.id}`);
+                    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    if (input) input.focus();
+                    return;
+                  }
+                  setMandatoryNotice(null);
+                  onChangeModule(MODULES[currentModuleIdx + 1].id);
+                }}
+                className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-white bg-[#0055FF] hover:bg-blue-700 rounded-xl transition-colors cursor-pointer whitespace-nowrap"
               >
                 Siguiente módulo
                 <ChevronRight className="w-4 h-4" />
@@ -922,7 +981,22 @@ export const PlanBuilderView: React.FC<PlanBuilderViewProps> = ({
             ) : (
               <button
                 type="button"
-                onClick={onGoToReport}
+                onClick={() => {
+                  const allPending = getPendingQuestions(state);
+                  if (allPending.length > 0) {
+                    const first = allPending[0];
+                    const mod = MODULES.find((m) => m.id === first.moduleId);
+                    setMandatoryNotice({
+                      message: `Debes responder las ${progress.totalQuestions} preguntas de forma obligatoria antes de pasar al Informe Final. Faltan ${allPending.length} (primera pendiente: Pregunta #${first.number} en ${mod?.shortTitle || 'Módulo'}).`,
+                      targetModuleId: first.moduleId,
+                      targetQuestionId: first.id,
+                      targetQuestionNumber: first.number,
+                    });
+                    return;
+                  }
+                  setMandatoryNotice(null);
+                  onGoToReport();
+                }}
                 className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-white bg-[#15803D] hover:bg-green-800 rounded-xl transition-colors cursor-pointer whitespace-nowrap"
               >
                 Ver Informe Final y Rúbrica

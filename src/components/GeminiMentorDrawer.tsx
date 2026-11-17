@@ -232,7 +232,7 @@ export const GeminiMentorDrawer: React.FC<GeminiMentorDrawerProps> = ({
             </div>
           )}
           {error && (
-            <div role="alert" className="p-3 rounded-xl bg-white border border-red-300 text-xs text-[#DC2626]">
+            <div role="alert" className="p-3 rounded-xl bg-white border border-pink-300 text-xs text-[#BE185D]">
               {error}
             </div>
           )}

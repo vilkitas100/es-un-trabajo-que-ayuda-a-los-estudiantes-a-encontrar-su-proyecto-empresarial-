@@ -293,6 +293,11 @@ export default function App() {
   };
 
   const handleFinishProgressToReport = () => {
+    const progress = calculateAcademicProgress(state);
+    if (!progress.isAll40Complete) {
+      handleNavigateTab('progress');
+      return;
+    }
     if (
       !state.legalPersonConscienceConfirmed ||
       !isConscienceReflectionComplete(state.legalPersonConscienceAnswer)
@@ -375,8 +380,8 @@ export default function App() {
               onClick={() => handleNavigateTab('passion')}
               className={`py-1 border-b-2 transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
                 activeTab === 'passion'
-                  ? 'border-[#DC2626] text-[#DC2626]'
-                  : 'border-transparent text-slate-600 hover:text-[#DC2626]'
+                  ? 'border-[#0D9488] text-[#0D9488]'
+                  : 'border-transparent text-slate-600 hover:text-[#0D9488]'
               }`}
             >
               1. Pasión
@@ -435,7 +440,7 @@ export default function App() {
             type="button"
             onClick={() => handleNavigateTab('passion')}
             className={`whitespace-nowrap shrink-0 px-2 py-1 rounded-md ${
-              activeTab === 'passion' ? 'text-[#DC2626] underline underline-offset-4' : 'text-slate-600'
+              activeTab === 'passion' ? 'text-[#0D9488] underline underline-offset-4' : 'text-slate-600'
             }`}
           >
             1. Pasión
@@ -501,9 +506,8 @@ export default function App() {
               }));
               window.scrollTo({ top: 0, behavior: 'auto' });
             }}
-            onSkipToPlan={() => {
-              updateField('corporateCitizenConfirmed', true);
-              window.scrollTo({ top: 0, behavior: 'auto' });
+            onBackToPassion={() => {
+              handleNavigateTab('passion');
             }}
           />
         )}
@@ -525,7 +529,7 @@ export default function App() {
               updateField('corporateCitizenConfirmed', false);
               window.scrollTo({ top: 0, behavior: 'auto' });
             }}
-            onGoToReport={() => setActiveTab('report')}
+            onGoToReport={handleFinishProgressToReport}
           />
         )}
 
@@ -548,6 +552,7 @@ export default function App() {
             onSetRubricComment={handleSetRubricComment}
             onApplyAIRubricEvaluation={handleApplyAIRubric}
             onRequestConscienceModal={handleRequestConscienceModal}
+            onJumpToQuestion={handleJumpToQuestion}
           />
         )}
       </main>
@@ -574,7 +579,7 @@ export default function App() {
               window.scrollTo({ top: 0, behavior: 'auto' });
               setShowResetCelebration(true);
             }}
-            className="text-slate-600 hover:text-[#DC2626] font-medium transition-colors cursor-pointer"
+            className="text-slate-600 hover:text-[#DB2777] font-medium transition-colors cursor-pointer"
           >
             Reiniciar proyecto
           </button>

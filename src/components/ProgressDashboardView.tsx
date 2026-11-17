@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { ArrowUpRight, CheckCircle2, Circle, HeartHandshake } from 'lucide-react';
+import { AlertCircle, ArrowUpRight, CheckCircle2, Circle, HeartHandshake } from 'lucide-react';
 import { MODULES, QUESTIONS_40 } from '../data/questionsAndRubric';
 import { BusinessPlanState, ModuleId } from '../types/businessPlan';
 import {
   calculateAcademicProgress,
   calculateRubricTotal,
+  getPendingQuestions,
   isMeaningfulAnswer,
 } from '../utils/businessLogic';
 import { getQuestionElectricColor } from '../utils/questionColors';
@@ -23,8 +24,22 @@ export const ProgressDashboardView: React.FC<ProgressDashboardViewProps> = ({
   onShowProgressCelebration,
 }) => {
   const [filter, setFilter] = useState<'all' | 'pending' | 'done'>('all');
+  const [pendingAlert, setPendingAlert] = useState<string | null>(null);
   const progress = calculateAcademicProgress(state);
   const rubricSummary = calculateRubricTotal(state.rubric.scores);
+  const pendingQuestions = getPendingQuestions(state);
+
+  const handleAttemptGoToReport = () => {
+    if (pendingQuestions.length > 0) {
+      const first = pendingQuestions[0];
+      setPendingAlert(
+        `Todas las ${progress.totalQuestions} preguntas son obligatorias. Aún te faltan ${pendingQuestions.length} por responder (siguiente pendiente: Pregunta #${first.number}).`
+      );
+      return;
+    }
+    setPendingAlert(null);
+    onGoToReport();
+  };
 
   const filteredQuestions = QUESTIONS_40.filter((q) => {
     const done = isMeaningfulAnswer(state.answers[q.id]);
@@ -63,8 +78,8 @@ export const ProgressDashboardView: React.FC<ProgressDashboardViewProps> = ({
             )}
             <button
               type="button"
-              onClick={onGoToReport}
-              className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-white bg-[#1D4ED8] hover:bg-blue-800 rounded-xl transition-colors cursor-pointer whitespace-nowrap"
+              onClick={handleAttemptGoToReport}
+              className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-white bg-[#0055FF] hover:bg-blue-700 rounded-xl transition-colors cursor-pointer whitespace-nowrap"
             >
               Abrir Informe y Rúbrica
               <ArrowUpRight className="w-4 h-4" />
@@ -72,13 +87,32 @@ export const ProgressDashboardView: React.FC<ProgressDashboardViewProps> = ({
           </div>
         </div>
 
+        {pendingAlert && pendingQuestions.length > 0 && (
+          <div
+            role="alert"
+            className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-xl bg-white border-2 border-pink-400 text-sm text-[#BE185D] font-semibold"
+          >
+            <div className="flex items-start gap-2.5">
+              <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-[#DB2777]" />
+              <span>{pendingAlert}</span>
+            </div>
+            <button
+              type="button"
+              onClick={() => onJumpToQuestion(pendingQuestions[0].moduleId, pendingQuestions[0].id)}
+              className="px-3.5 py-2 text-xs font-bold text-white bg-[#0D9488] hover:bg-teal-700 rounded-xl transition-colors cursor-pointer whitespace-nowrap shrink-0"
+            >
+              Responder Pregunta #{pendingQuestions[0].number}
+            </button>
+          </div>
+        )}
+
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="p-4 rounded-xl bg-white border-2 border-red-200">
+          <div className="p-4 rounded-xl bg-white border-2 border-teal-200">
             <span className="text-xs text-slate-600 block">Preguntas Resueltas</span>
-            <span className="text-2xl font-bold font-mono tabular-nums text-[#DC2626]">
+            <span className="text-2xl font-bold font-mono tabular-nums text-[#0D9488]">
               {progress.answeredCount} / {progress.totalQuestions}
             </span>
-            <span className="text-xs font-mono tabular-nums text-[#DC2626] block mt-1">
+            <span className="text-xs font-mono tabular-nums text-[#0D9488] block mt-1">
               {progress.percentage}% completado
             </span>
           </div>
@@ -251,20 +285,35 @@ export const ProgressDashboardView: React.FC<ProgressDashboardViewProps> = ({
       <section className="bg-white border-2 border-purple-200 rounded-2xl p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="space-y-1">
           <h2 className="text-lg font-bold text-[#7E22CE]">
-            ¿Finalizaste tu revisión de progreso?
+            {pendingQuestions.length === 0
+              ? '¿Finalizaste tu revisión de progreso?'
+              : `Te faltan ${pendingQuestions.length} preguntas obligatorias por completar`}
           </h2>
           <p className="text-sm text-slate-600">
-            Cierra la etapa de progreso con tu reflexión ética sobre la persona jurídica y pasa al Informe Final y Rúbrica SIG.
+            {pendingQuestions.length === 0
+              ? 'Cierra la etapa de progreso con tu reflexión ética sobre la persona jurídica y pasa al Informe Final y Rúbrica SIG.'
+              : 'Debes responder todas las preguntas del plan para poder pasar al Informe Final y descargar tu documento.'}
           </p>
         </div>
-        <button
-          type="button"
-          onClick={onGoToReport}
-          className="inline-flex items-center justify-center gap-2 px-5 py-3 text-sm font-bold text-white bg-[#15803D] hover:bg-green-800 rounded-xl transition-colors cursor-pointer whitespace-nowrap shrink-0"
-        >
-          Finalizar Progreso e Ir al Informe
-          <ArrowUpRight className="w-4 h-4" />
-        </button>
+        {pendingQuestions.length === 0 ? (
+          <button
+            type="button"
+            onClick={handleAttemptGoToReport}
+            className="inline-flex items-center justify-center gap-2 px-5 py-3 text-sm font-bold text-white bg-[#15803D] hover:bg-green-800 rounded-xl transition-colors cursor-pointer whitespace-nowrap shrink-0"
+          >
+            Finalizar Progreso e Ir al Informe
+            <ArrowUpRight className="w-4 h-4" />
+          </button>
+        ) : (
+          <button
+            type="button"
+            onClick={() => onJumpToQuestion(pendingQuestions[0].moduleId, pendingQuestions[0].id)}
+            className="inline-flex items-center justify-center gap-2 px-5 py-3 text-sm font-bold text-white bg-[#0D9488] hover:bg-teal-700 rounded-xl transition-colors cursor-pointer whitespace-nowrap shrink-0"
+          >
+            Ir a Pregunta Pendiente #{pendingQuestions[0].number}
+            <ArrowUpRight className="w-4 h-4" />
+          </button>
+        )}
       </section>
     </div>
   );

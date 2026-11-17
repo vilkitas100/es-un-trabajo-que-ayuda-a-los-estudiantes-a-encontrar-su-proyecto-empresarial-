@@ -66,19 +66,19 @@ const StarBurstSvg: React.FC<{ color: string; className?: string }> = ({ color, 
 );
 
 const CONFETTI_PIECES = [
-  { left: '6%', top: '10%', color: '#DC2626', delay: '0s', shape: 'rect' },
+  { left: '6%', top: '10%', color: '#0D9488', delay: '0s', shape: 'rect' },
   { left: '14%', top: '24%', color: '#F59E0B', delay: '0.25s', shape: 'star' },
-  { left: '22%', top: '8%', color: '#1D4ED8', delay: '0.5s', shape: 'circle' },
+  { left: '22%', top: '8%', color: '#0055FF', delay: '0.5s', shape: 'circle' },
   { left: '31%', top: '18%', color: '#15803D', delay: '0.15s', shape: 'rect' },
   { left: '40%', top: '6%', color: '#7E22CE', delay: '0.4s', shape: 'star' },
-  { left: '50%', top: '16%', color: '#EA580C', delay: '0.1s', shape: 'circle' },
+  { left: '50%', top: '16%', color: '#FF007F', delay: '0.1s', shape: 'circle' },
   { left: '60%', top: '8%', color: '#EC4899', delay: '0.35s', shape: 'rect' },
-  { left: '69%', top: '22%', color: '#1D4ED8', delay: '0.2s', shape: 'star' },
+  { left: '69%', top: '22%', color: '#0055FF', delay: '0.2s', shape: 'star' },
   { left: '78%', top: '9%', color: '#15803D', delay: '0.45s', shape: 'circle' },
-  { left: '86%', top: '20%', color: '#DC2626', delay: '0.05s', shape: 'rect' },
+  { left: '86%', top: '20%', color: '#0D9488', delay: '0.05s', shape: 'rect' },
   { left: '93%', top: '12%', color: '#F59E0B', delay: '0.3s', shape: 'star' },
   { left: '11%', top: '68%', color: '#7E22CE', delay: '0.6s', shape: 'circle' },
-  { left: '89%', top: '66%', color: '#EA580C', delay: '0.55s', shape: 'star' },
+  { left: '89%', top: '66%', color: '#5C2808', delay: '0.55s', shape: 'star' },
 ] as const;
 
 export const CelebrationResetModal: React.FC<CelebrationResetModalProps> = ({
@@ -120,11 +120,11 @@ export const CelebrationResetModal: React.FC<CelebrationResetModalProps> = ({
       >
         {/* Top Vibrant 6-Color Energy Ribbon */}
         <div className="relative h-3 w-full grid grid-cols-6 overflow-hidden" aria-hidden="true">
-          <div className="bg-[#DC2626]" />
-          <div className="bg-[#EA580C]" />
-          <div className="bg-[#F59E0B]" />
-          <div className="bg-[#15803D]" />
-          <div className="bg-[#1D4ED8]" />
+          <div className="bg-[#0D9488]" />
+          <div className="bg-[#FF007F]" />
+          <div className="bg-[#5C2808]" />
+          <div className="bg-[#00A33D]" />
+          <div className="bg-[#0055FF]" />
           <div className="bg-[#7E22CE]" />
           <div className="absolute inset-0 w-1/3 bg-white/40 animate-energy-sweep" />
         </div>
@@ -187,7 +187,7 @@ export const CelebrationResetModal: React.FC<CelebrationResetModalProps> = ({
             </div>
 
             <div className="animate-pulse-heart z-10 shrink-0">
-              <HeartSvg color="#E11D48" className="w-7 h-7 sm:w-11 sm:h-11" />
+              <HeartSvg color="#DB2777" className="w-7 h-7 sm:w-11 sm:h-11" />
             </div>
 
             <div className="animate-float-alt z-10 shrink-0">
@@ -207,21 +207,21 @@ export const CelebrationResetModal: React.FC<CelebrationResetModalProps> = ({
             </div>
 
             <div className="animate-pulse-heart z-10 hidden sm:block shrink-0">
-              <HeartSvg color="#DC2626" className="w-9 h-9" />
+              <HeartSvg color="#FF007F" className="w-9 h-9" />
             </div>
 
             <div className="animate-float-alt z-10 shrink-0">
-              <BalloonSvg color="#DC2626" className="w-7 h-12 sm:w-12 sm:h-20" />
+              <BalloonSvg color="#0D9488" className="w-7 h-12 sm:w-12 sm:h-20" />
             </div>
           </div>
 
           {/* Energetic Headline & Kicker */}
           <div className="text-center space-y-3">
             <div className="inline-flex flex-wrap items-center justify-center gap-2 text-xs font-bold text-[#7E22CE]">
-              <Zap className="w-4 h-4 text-[#EA580C]" />
+              <Zap className="w-4 h-4 text-[#0055FF]" />
               <span>Prof: Liz Acuña</span>
               <span aria-hidden="true">·</span>
-              <span className="text-[#EA580C]">¡Nuevo Impulso Activado!</span>
+              <span className="text-[#0D9488]">¡Nuevo Impulso Activado!</span>
               <span aria-hidden="true">·</span>
               <span className="text-[#15803D]">Energía Emprendedora 100%</span>
             </div>
@@ -235,10 +235,10 @@ export const CelebrationResetModal: React.FC<CelebrationResetModalProps> = ({
 
             {/* Exact Required Message Highlighted Cleanly */}
             <div className="p-5 sm:p-6 rounded-2xl bg-white border-2 border-[#15803D] shadow-sm space-y-3">
-              <div className="flex items-center justify-center gap-2 text-xs font-bold text-[#EA580C]">
-                <Flame className="w-4 h-4 text-[#DC2626]" />
+              <div className="flex items-center justify-center gap-2 text-xs font-bold text-[#7E22CE]">
+                <Flame className="w-4 h-4 text-[#FF007F]" />
                 <span>¡A conquistar tu meta!</span>
-                <Sparkles className="w-4 h-4 text-[#F59E0B]" />
+                <Sparkles className="w-4 h-4 text-[#0D9488]" />
               </div>
               <p className="text-base sm:text-lg font-bold text-slate-900 leading-relaxed">
                 Hoy has dado el primer paso, ahora vamos a materializar tus ideas! Te acompaño, vamos, hacia adelante, un paso atrás sólo se permite para tomar impulso.
@@ -251,7 +251,7 @@ export const CelebrationResetModal: React.FC<CelebrationResetModalProps> = ({
                 <FlowerSvg petalColor="#EC4899" centerColor="#FDE047" className="w-7 h-7" />
               </div>
               <div className="animate-pulse-heart">
-                <HeartSvg color="#DC2626" className="w-6 h-6" />
+                <HeartSvg color="#FF007F" className="w-6 h-6" />
               </div>
               <div className="animate-spin-bloom">
                 <FlowerSvg petalColor="#7E22CE" centerColor="#FACC15" className="w-7 h-7" />
