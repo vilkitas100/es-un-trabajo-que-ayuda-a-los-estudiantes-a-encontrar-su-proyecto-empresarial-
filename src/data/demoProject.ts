@@ -22,6 +22,8 @@ export function createEmptyBusinessPlanState(): BusinessPlanState {
     companySlogan: '',
     corporateCitizenVision: '',
     corporateCitizenConfirmed: false,
+    legalPersonConscienceAnswer: '',
+    legalPersonConscienceConfirmed: false,
     answers: {},
     startupCosts: DEFAULT_STARTUP_COSTS.map((c) => ({ ...c })),
     financialAssumptions: {
@@ -146,6 +148,8 @@ export function createDemoBusinessPlanState(): BusinessPlanState {
     corporateCitizenVision:
       'Quiero que Cacao Vivo CR sea un ciudadano corporativo íntegro, transparente y solidario: puntual con sus obligaciones tributarias y laborales, respetuoso de los productores de cacao en Talamanca y comprometido con mejorar la salud real de las familias costarricenses.',
     corporateCitizenConfirmed: true,
+    legalPersonConscienceAnswer: '',
+    legalPersonConscienceConfirmed: false,
     startupCosts: [
       { id: 'c1', category: 'Equipamiento', concept: 'Horno semi-industrial eléctrico, batidora planetaria y mesa inox', amountCRC: 680000, essential: true },
       { id: 'c2', category: 'Tecnología y SIG', concept: 'Sistema POS, facturación electrónica anual, dominio y tablet', amountCRC: 165000, essential: true },

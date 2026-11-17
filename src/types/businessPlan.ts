@@ -131,6 +131,8 @@ export interface BusinessPlanState {
   companySlogan: string;
   corporateCitizenVision: string;
   corporateCitizenConfirmed: boolean;
+  legalPersonConscienceAnswer: string;
+  legalPersonConscienceConfirmed: boolean;
   answers: Record<string, string>;
   startupCosts: StartupCostItem[];
   financialAssumptions: FinancialAssumptions;

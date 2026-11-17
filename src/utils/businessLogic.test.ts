@@ -8,6 +8,7 @@ import {
   calculateFinancialSummary,
   calculateMonthlyLoanPayment,
   calculateRubricTotal,
+  isConscienceReflectionComplete,
 } from './businessLogic';
 import { createDemoBusinessPlanState, createEmptyBusinessPlanState } from '../data/demoProject';
 
@@ -109,4 +110,24 @@ test('buildReportMarkdown and buildWordReportHtml include official title, 4 bank
   assert.ok(wordHtml.includes('51/51 preguntas'));
   assert.ok(wordHtml.includes('urn:schemas-microsoft-com:office:word'));
   assert.ok(wordHtml.includes('40 / 40'));
+});
+
+test('isConscienceReflectionComplete enforces minimum thoughtful answer and exports include it', () => {
+  assert.equal(isConscienceReflectionComplete(''), false);
+  assert.equal(isConscienceReflectionComplete('Sí, claro'), false);
+  const thoughtful =
+    'Defenderemos salarios justos, transparencia tributaria y dignidad humana en cada decisión empresarial.';
+  assert.equal(isConscienceReflectionComplete(thoughtful), true);
+
+  const demo = createDemoBusinessPlanState();
+  demo.legalPersonConscienceAnswer = thoughtful;
+  demo.legalPersonConscienceConfirmed = true;
+
+  const md = buildReportMarkdown(demo);
+  assert.ok(md.includes('Conciencia Filosófica de la Persona Jurídica'));
+  assert.ok(md.includes(thoughtful));
+
+  const wordHtml = buildWordReportHtml(demo);
+  assert.ok(wordHtml.includes('Conciencia Filosófica de la Persona Jurídica'));
+  assert.ok(wordHtml.includes(thoughtful));
 });

@@ -11,7 +11,13 @@ import {
   RubricScoreValue,
   StartupCostItem,
 } from './types/businessPlan';
-import { calculateAcademicProgress, calculateRubricTotal } from './utils/businessLogic';
+import {
+  buildWordReportHtml,
+  calculateAcademicProgress,
+  calculateRubricTotal,
+  isConscienceReflectionComplete,
+} from './utils/businessLogic';
+import { downloadReportAsPDF } from './utils/pdfExport';
 import { PassionDiscoveryView } from './components/PassionDiscoveryView';
 import { PlanBuilderView } from './components/PlanBuilderView';
 import { ProgressDashboardView } from './components/ProgressDashboardView';
@@ -19,6 +25,10 @@ import { FinalReportView } from './components/FinalReportView';
 import { GeminiMentorDrawer } from './components/GeminiMentorDrawer';
 import { CelebrationResetModal } from './components/CelebrationResetModal';
 import { ProgressCelebrationModal } from './components/ProgressCelebrationModal';
+import {
+  FinalProgressCelebrationModal,
+  PendingExportAction,
+} from './components/FinalProgressCelebrationModal';
 import { CorporateCitizenGateway } from './components/CorporateCitizenGateway';
 import { playCelebrationFanfare } from './utils/celebrationSound';
 
@@ -62,6 +72,8 @@ export default function App() {
   const [showResetCelebration, setShowResetCelebration] = useState(false);
   const [showProgressCelebration, setShowProgressCelebration] = useState(false);
   const [hasSeenProgressCelebration, setHasSeenProgressCelebration] = useState(false);
+  const [showFinalProgressCelebration, setShowFinalProgressCelebration] = useState(false);
+  const [pendingExportAction, setPendingExportAction] = useState<PendingExportAction>(null);
   const syncTimerRef = useRef<number | null>(null);
 
   // Persist to localStorage immediately AND sync to backend session memory
@@ -280,6 +292,67 @@ export default function App() {
     }
   };
 
+  const handleFinishProgressToReport = () => {
+    if (
+      !state.legalPersonConscienceConfirmed ||
+      !isConscienceReflectionComplete(state.legalPersonConscienceAnswer)
+    ) {
+      playCelebrationFanfare();
+      setPendingExportAction(null);
+      setShowFinalProgressCelebration(true);
+      return;
+    }
+    handleNavigateTab('report');
+  };
+
+  const handleRequestConscienceModal = (action: PendingExportAction) => {
+    playCelebrationFanfare();
+    setPendingExportAction(action);
+    setShowFinalProgressCelebration(true);
+  };
+
+  const triggerWordDownload = (targetState: BusinessPlanState) => {
+    const htmlContent = buildWordReportHtml(targetState);
+    const blob = new Blob(['\ufeff', htmlContent], {
+      type: 'application/msword;charset=utf-8',
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    const safeName = (targetState.companyName || 'Empresa_Simulada').replace(/[^a-zA-Z0-9_-]+/g, '_');
+    a.download = `Informe_Final_${safeName}.doc`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+  const handleConfirmLegalPersonConscience = (answer: string) => {
+    const nextState: BusinessPlanState = {
+      ...state,
+      legalPersonConscienceAnswer: answer,
+      legalPersonConscienceConfirmed: true,
+      aiMemoryNotes: appendUniqueMemory(
+        state.aiMemoryNotes,
+        `Conciencia de persona jurídica: ${answer.slice(0, 120)}`
+      ),
+    };
+    setState(nextState);
+    const actionToRun = pendingExportAction;
+    setShowFinalProgressCelebration(false);
+    setPendingExportAction(null);
+    setActiveTab('report');
+    window.scrollTo({ top: 0, behavior: 'auto' });
+
+    if (actionToRun === 'pdf') {
+      downloadReportAsPDF(nextState);
+    } else if (actionToRun === 'word') {
+      triggerWordDownload(nextState);
+    } else if (actionToRun === 'print') {
+      window.setTimeout(() => window.print(), 120);
+    }
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-white text-slate-900">
       {/* Strict 3-Zone Top Bar Contract */}
@@ -460,7 +533,7 @@ export default function App() {
           <ProgressDashboardView
             state={state}
             onJumpToQuestion={handleJumpToQuestion}
-            onGoToReport={() => handleNavigateTab('report')}
+            onGoToReport={handleFinishProgressToReport}
             onShowProgressCelebration={() => {
               playCelebrationFanfare();
               setShowProgressCelebration(true);
@@ -474,6 +547,7 @@ export default function App() {
             onSetRubricScore={handleSetRubricScore}
             onSetRubricComment={handleSetRubricComment}
             onApplyAIRubricEvaluation={handleApplyAIRubric}
+            onRequestConscienceModal={handleRequestConscienceModal}
           />
         )}
       </main>
@@ -495,6 +569,8 @@ export default function App() {
               setActiveTab('passion');
               setHasSeenProgressCelebration(false);
               setShowProgressCelebration(false);
+              setShowFinalProgressCelebration(false);
+              setPendingExportAction(null);
               window.scrollTo({ top: 0, behavior: 'auto' });
               setShowResetCelebration(true);
             }}
@@ -543,6 +619,20 @@ export default function App() {
         companyName={state.companyName}
         studentName={state.studentName}
         onClose={() => setShowProgressCelebration(false)}
+      />
+
+      {/* End-of-Progress Philosophical Conscience Gate Modal */}
+      <FinalProgressCelebrationModal
+        isOpen={showFinalProgressCelebration}
+        studentName={state.studentName}
+        companyName={state.companyName}
+        initialAnswer={state.legalPersonConscienceAnswer}
+        pendingExportAction={pendingExportAction}
+        onClose={() => {
+          setShowFinalProgressCelebration(false);
+          setPendingExportAction(null);
+        }}
+        onConfirmAnswer={handleConfirmLegalPersonConscience}
       />
     </div>
   );

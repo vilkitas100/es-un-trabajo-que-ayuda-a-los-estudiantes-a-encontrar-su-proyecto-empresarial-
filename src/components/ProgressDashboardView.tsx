@@ -246,6 +246,26 @@ export const ProgressDashboardView: React.FC<ProgressDashboardViewProps> = ({
           })}
         </div>
       </section>
+
+      {/* Final Progress Completion CTA */}
+      <section className="bg-white border-2 border-purple-200 rounded-2xl p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="space-y-1">
+          <h2 className="text-lg font-bold text-[#7E22CE]">
+            ¿Finalizaste tu revisión de progreso?
+          </h2>
+          <p className="text-sm text-slate-600">
+            Cierra la etapa de progreso con tu reflexión ética sobre la persona jurídica y pasa al Informe Final y Rúbrica SIG.
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={onGoToReport}
+          className="inline-flex items-center justify-center gap-2 px-5 py-3 text-sm font-bold text-white bg-[#15803D] hover:bg-green-800 rounded-xl transition-colors cursor-pointer whitespace-nowrap shrink-0"
+        >
+          Finalizar Progreso e Ir al Informe
+          <ArrowUpRight className="w-4 h-4" />
+        </button>
+      </section>
     </div>
   );
 };

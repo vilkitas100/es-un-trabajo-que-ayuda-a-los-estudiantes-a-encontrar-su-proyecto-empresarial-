@@ -1,5 +1,15 @@
 import React, { useState } from 'react';
-import { Download, FileText, Loader2, Printer, Sparkles, AlertCircle } from 'lucide-react';
+import {
+  AlertCircle,
+  CheckCircle2,
+  Download,
+  FileText,
+  Loader2,
+  Lock,
+  Printer,
+  Scale,
+  Sparkles,
+} from 'lucide-react';
 import { MODULES, QUESTIONS_40, SIG_RUBRIC_CRITERIA } from '../data/questionsAndRubric';
 import { BusinessPlanState, RubricScoreValue } from '../types/businessPlan';
 import {
@@ -9,9 +19,11 @@ import {
   calculateFinancialSummary,
   calculateRubricTotal,
   formatCRC,
+  isConscienceReflectionComplete,
 } from '../utils/businessLogic';
 import { downloadReportAsPDF } from '../utils/pdfExport';
 import { getQuestionElectricColor } from '../utils/questionColors';
+import { PendingExportAction } from './FinalProgressCelebrationModal';
 import {
   BankComparisonBarChart,
   CashflowProjectionChart,
@@ -28,6 +40,7 @@ interface FinalReportViewProps {
     justifications: Record<number, string>,
     finalComment: string
   ) => void;
+  onRequestConscienceModal: (pendingAction: PendingExportAction) => void;
 }
 
 export const FinalReportView: React.FC<FinalReportViewProps> = ({
@@ -35,6 +48,7 @@ export const FinalReportView: React.FC<FinalReportViewProps> = ({
   onSetRubricScore,
   onSetRubricComment,
   onApplyAIRubricEvaluation,
+  onRequestConscienceModal,
 }) => {
   const [isEvaluating, setIsEvaluating] = useState(false);
   const [evalError, setEvalError] = useState<string | null>(null);
@@ -108,7 +122,13 @@ export const FinalReportView: React.FC<FinalReportViewProps> = ({
     }
   };
 
+  const reflectionComplete = isConscienceReflectionComplete(state.legalPersonConscienceAnswer);
+
   const handleDownloadWord = () => {
+    if (!reflectionComplete) {
+      onRequestConscienceModal('word');
+      return;
+    }
     const htmlContent = buildWordReportHtml(state);
     const blob = new Blob(['\ufeff', htmlContent], {
       type: 'application/msword;charset=utf-8',
@@ -125,7 +145,19 @@ export const FinalReportView: React.FC<FinalReportViewProps> = ({
   };
 
   const handleDownloadPDF = () => {
+    if (!reflectionComplete) {
+      onRequestConscienceModal('pdf');
+      return;
+    }
     downloadReportAsPDF(state);
+  };
+
+  const handlePrintReport = () => {
+    if (!reflectionComplete) {
+      onRequestConscienceModal('print');
+      return;
+    }
+    window.print();
   };
 
   const roadmapPhases = [
@@ -205,6 +237,46 @@ export const FinalReportView: React.FC<FinalReportViewProps> = ({
                   {state.corporateCitizenVision}
                 </p>
               )}
+
+              {reflectionComplete ? (
+                <div className="p-3.5 rounded-xl bg-white border border-purple-200 space-y-1.5">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <span className="inline-flex items-center gap-1.5 text-xs font-bold text-[#15803D]">
+                      <CheckCircle2 className="w-3.5 h-3.5" />
+                      Conciencia Filosófica de la Persona Jurídica (Descarga desbloqueada)
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => onRequestConscienceModal(null)}
+                      className="text-xs font-semibold text-[#7E22CE] hover:underline cursor-pointer no-print"
+                    >
+                      Editar reflexión
+                    </button>
+                  </div>
+                  <p className="text-xs sm:text-sm text-slate-800 leading-relaxed">
+                    {state.legalPersonConscienceAnswer}
+                  </p>
+                </div>
+              ) : (
+                <div className="p-3.5 rounded-xl bg-white border-2 border-[#FF007F] flex flex-col sm:flex-row sm:items-center justify-between gap-3 no-print">
+                  <div className="flex items-start gap-2.5 text-xs sm:text-sm text-slate-800">
+                    <Scale className="w-4 h-4 text-[#FF007F] shrink-0 mt-0.5" />
+                    <span>
+                      <strong className="text-[#DC2626]">
+                        ¿Eres consciente de lo que significa la creación de una persona jurídica?
+                      </strong>{' '}
+                      Responde la pregunta profunda y filosófica para desbloquear la descarga del informe.
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => onRequestConscienceModal(null)}
+                    className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 text-xs font-bold text-white bg-[#7E22CE] hover:bg-purple-800 rounded-xl transition-colors cursor-pointer whitespace-nowrap shrink-0"
+                  >
+                    Responder pregunta filosófica
+                  </button>
+                </div>
+              )}
             </div>
 
             <div className="flex flex-wrap items-center gap-3 no-print">
@@ -213,7 +285,7 @@ export const FinalReportView: React.FC<FinalReportViewProps> = ({
                 onClick={handleDownloadPDF}
                 className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-[#DC2626] hover:bg-red-700 rounded-xl transition-colors cursor-pointer whitespace-nowrap"
               >
-                <Download className="w-4 h-4" />
+                {reflectionComplete ? <Download className="w-4 h-4" /> : <Lock className="w-4 h-4" />}
                 Descargar en PDF
               </button>
               <button
@@ -221,15 +293,15 @@ export const FinalReportView: React.FC<FinalReportViewProps> = ({
                 onClick={handleDownloadWord}
                 className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-[#1D4ED8] hover:bg-blue-800 rounded-xl transition-colors cursor-pointer whitespace-nowrap"
               >
-                <FileText className="w-4 h-4" />
+                {reflectionComplete ? <FileText className="w-4 h-4" /> : <Lock className="w-4 h-4" />}
                 Descargar en Word (.doc)
               </button>
               <button
                 type="button"
-                onClick={() => window.print()}
+                onClick={handlePrintReport}
                 className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-[#7C2D12] bg-white border-2 border-amber-300 hover:bg-amber-50 rounded-xl transition-colors cursor-pointer whitespace-nowrap"
               >
-                <Printer className="w-4 h-4" />
+                {reflectionComplete ? <Printer className="w-4 h-4" /> : <Lock className="w-4 h-4" />}
                 Imprimir
               </button>
             </div>

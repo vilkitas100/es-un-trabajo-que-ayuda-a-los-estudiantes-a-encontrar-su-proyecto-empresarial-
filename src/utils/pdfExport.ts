@@ -55,6 +55,9 @@ export function downloadReportAsPDF(state: BusinessPlanState): void {
     ...(state.corporateCitizenVision.trim()
       ? [`Ciudadano corporativo (Persona juridica): ${state.corporateCitizenVision.trim()}`]
       : []),
+    ...(state.legalPersonConscienceAnswer.trim()
+      ? [`Conciencia filosofica de la persona juridica: ${state.legalPersonConscienceAnswer.trim()}`]
+      : []),
     `Modelo seleccionado: ${selectedModel?.name || 'Pendiente'}`,
     `Equipo: ${state.teamMembers || 'Individual'} | Docente: ${state.teacherName || 'Prof. Liz Acuña'}`,
     `Avance academico: ${progress.answeredCount}/${progress.totalQuestions} preguntas (${progress.percentage}%) | Rubrica SIG: ${rubricSummary.totalScore}/40 pts`,
