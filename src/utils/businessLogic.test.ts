@@ -11,18 +11,18 @@ import {
 } from './businessLogic';
 import { createDemoBusinessPlanState, createEmptyBusinessPlanState } from '../data/demoProject';
 
-test('calculateAcademicProgress returns 0/40 for empty state and 40/40 for demo state', () => {
+test('calculateAcademicProgress returns 0/51 for empty state and 51/51 for demo state', () => {
   const empty = createEmptyBusinessPlanState();
   const emptyProgress = calculateAcademicProgress(empty);
   assert.equal(emptyProgress.answeredCount, 0);
-  assert.equal(emptyProgress.totalQuestions, 40);
+  assert.equal(emptyProgress.totalQuestions, 51);
   assert.equal(emptyProgress.percentage, 0);
   assert.equal(emptyProgress.isAll40Complete, false);
 
   const demo = createDemoBusinessPlanState();
   const demoProgress = calculateAcademicProgress(demo);
-  assert.equal(demoProgress.answeredCount, 40);
-  assert.equal(demoProgress.totalQuestions, 40);
+  assert.equal(demoProgress.answeredCount, 51);
+  assert.equal(demoProgress.totalQuestions, 51);
   assert.equal(demoProgress.percentage, 100);
   assert.equal(demoProgress.isAll40Complete, true);
   assert.equal(demoProgress.banksResearchedCount, 4);
@@ -92,17 +92,19 @@ test('calculateRubricTotal computes exact sum out of 40 and explanatory comment'
   assert.ok(rubricMid.generatedComment.includes('Determinación de recursos tecnológicos'));
 });
 
-test('buildReportMarkdown and buildWordReportHtml include official title, 4 banks, 40 questions, and rubric total', () => {
+test('buildReportMarkdown and buildWordReportHtml include official title, 4 banks, 51 questions, and rubric total', () => {
   const demo = createDemoBusinessPlanState();
   const md = buildReportMarkdown(demo);
   assert.ok(md.includes('Informe final : Toma de decision gerencial para construir una empresa'));
+  assert.ok(md.includes('Prof: Liz Acuña. Toma de Decisiones Gerenciales para crear mi empresa.'));
   assert.ok(md.includes('Cacao Vivo CR'));
-  assert.ok(md.includes('40/40 preguntas resueltas'));
+  assert.ok(md.includes('51/51 preguntas resueltas'));
   assert.ok(md.includes('Banco Nacional de Costa Rica'));
   assert.ok(md.includes('40 / 40'));
 
   const wordHtml = buildWordReportHtml(demo);
   assert.ok(wordHtml.includes('Informe final : Toma de decision gerencial para construir una empresa'));
+  assert.ok(wordHtml.includes('51/51 preguntas'));
   assert.ok(wordHtml.includes('urn:schemas-microsoft-com:office:word'));
   assert.ok(wordHtml.includes('40 / 40'));
 });

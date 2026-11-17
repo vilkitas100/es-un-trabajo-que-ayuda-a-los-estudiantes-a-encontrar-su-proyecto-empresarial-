@@ -35,6 +35,7 @@ import {
 interface PlanBuilderViewProps {
   state: BusinessPlanState;
   activeModule: ModuleId;
+  onUpdateField: <K extends keyof BusinessPlanState>(field: K, value: BusinessPlanState[K]) => void;
   onChangeModule: (mod: ModuleId) => void;
   onUpdateAnswer: (questionId: string, value: string) => void;
   onUpdateStartupCosts: (items: StartupCostItem[]) => void;
@@ -54,6 +55,7 @@ interface CoachSuggestion {
 export const PlanBuilderView: React.FC<PlanBuilderViewProps> = ({
   state,
   activeModule,
+  onUpdateField,
   onChangeModule,
   onUpdateAnswer,
   onUpdateStartupCosts,
@@ -96,6 +98,7 @@ export const PlanBuilderView: React.FC<PlanBuilderViewProps> = ({
           questionPrompt: q.prompt,
           currentAnswer: state.answers[q.id] || '',
           companyContext: {
+            studentName: state.studentName,
             companyName: state.companyName,
             passion: state.passionText,
             selectedModel: selectedModel?.name,
@@ -164,39 +167,74 @@ export const PlanBuilderView: React.FC<PlanBuilderViewProps> = ({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 bg-white">
       {/* Top Progress Strip */}
-      <div className="bg-white border border-slate-200 rounded-2xl p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div className="space-y-1">
-          <div className="text-xs font-medium text-slate-500">
-            {state.companyName || 'Tu Empresa Simulada'}
-            {selectedModel ? ` · ${selectedModel.name}` : ''}
+      <div className="bg-white border-2 border-blue-200 rounded-2xl p-5 space-y-4">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="space-y-1">
+            <div className="text-xs font-semibold text-[#7E22CE]">
+              {state.companyName || 'Tu Empresa Simulada'}
+              {state.studentName ? ` · Estudiante: ${state.studentName}` : ''}
+              {selectedModel ? ` · ${selectedModel.name}` : ''}
+            </div>
+            <h1 className="text-xl sm:text-2xl font-bold text-[#1D4ED8]">
+              Taller del Plan de Negocios ({progress.totalQuestions} Preguntas)
+            </h1>
           </div>
-          <h1 className="text-xl sm:text-2xl font-bold text-slate-900">
-            Taller del Plan de Negocios (40 Preguntas)
-          </h1>
-        </div>
-        <div className="flex items-center gap-4">
-          <div className="text-right">
-            <div className="text-xs text-slate-500">Progreso total</div>
-            <div className="text-lg font-bold font-mono tabular-nums text-indigo-700">
-              {progress.answeredCount} / {progress.totalQuestions} ({progress.percentage}%)
+          <div className="flex items-center gap-4">
+            <div className="text-right">
+              <div className="text-xs text-slate-600">Progreso total</div>
+              <div className="text-lg font-bold font-mono tabular-nums text-[#15803D]">
+                {progress.answeredCount} / {progress.totalQuestions} ({progress.percentage}%)
+              </div>
+            </div>
+            <div className="w-32 h-3 bg-white rounded-full overflow-hidden border border-slate-300">
+              <div
+                className="h-full bg-[#15803D] transition-all duration-300"
+                style={{ width: `${progress.percentage}%` }}
+              />
             </div>
           </div>
-          <div className="w-32 h-3 bg-slate-100 rounded-full overflow-hidden border border-slate-200">
-            <div
-              className="h-full bg-indigo-600 transition-all duration-300"
-              style={{ width: `${progress.percentage}%` }}
-            />
-          </div>
         </div>
+
+        {/* Inline Student & Company Name Inputs when missing */}
+        {(!state.studentName.trim() || !state.companyName.trim()) && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3.5 bg-white border-2 border-orange-300 rounded-xl">
+            <div>
+              <label htmlFor="builder-student-name" className="block text-xs font-semibold text-[#C2410C] mb-1">
+                Nombre del estudiante *
+              </label>
+              <input
+                id="builder-student-name"
+                type="text"
+                value={state.studentName}
+                onChange={(e) => onUpdateField('studentName', e.target.value)}
+                placeholder="Ingresa tu nombre completo"
+                className="w-full px-3 py-1.5 text-sm bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+              />
+            </div>
+            <div>
+              <label htmlFor="builder-company-name" className="block text-xs font-semibold text-[#15803D] mb-1">
+                Nombre de tu empresa *
+              </label>
+              <input
+                id="builder-company-name"
+                type="text"
+                value={state.companyName}
+                onChange={(e) => onUpdateField('companyName', e.target.value)}
+                placeholder="Ingresa el nombre de tu empresa"
+                className="w-full px-3 py-1.5 text-sm bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600"
+              />
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Main 2-column Builder */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         {/* Module Navigation Sidebar */}
-        <aside className="lg:col-span-3 bg-white border border-slate-200 rounded-2xl p-3 space-y-1.5 lg:sticky lg:top-20">
-          <div className="px-3 py-2 text-xs font-semibold text-slate-500">
+        <aside className="lg:col-span-3 bg-white border-2 border-slate-200 rounded-2xl p-3 space-y-1.5 lg:sticky lg:top-20">
+          <div className="px-3 py-2 text-xs font-bold text-[#7C2D12]">
             6 Módulos del Plan Integral
           </div>
           {MODULES.map((mod) => {
@@ -207,17 +245,21 @@ export const PlanBuilderView: React.FC<PlanBuilderViewProps> = ({
                 key={mod.id}
                 type="button"
                 onClick={() => onChangeModule(mod.id)}
-                className={`w-full text-left px-3.5 py-3 rounded-xl transition-colors cursor-pointer border ${
+                className={`w-full text-left px-3.5 py-3 rounded-xl transition-colors cursor-pointer border-2 ${
                   isActive
-                    ? 'bg-indigo-50/80 border-indigo-200 text-slate-900'
-                    : 'bg-transparent border-transparent hover:bg-slate-50 text-slate-700'
+                    ? 'bg-white text-slate-900 shadow-xs'
+                    : 'bg-white border-transparent hover:border-slate-200 text-slate-700'
                 }`}
+                style={isActive ? { borderColor: mod.accentColor } : undefined}
               >
                 <div className="flex items-center justify-between gap-2">
-                  <span className="text-sm font-semibold truncate">
+                  <span
+                    className="text-sm font-bold truncate"
+                    style={{ color: mod.accentColor }}
+                  >
                     {mod.order}. {mod.shortTitle}
                   </span>
-                  <span className="text-xs font-mono tabular-nums font-semibold text-slate-600 shrink-0">
+                  <span className="text-xs font-mono tabular-nums font-semibold text-slate-700 shrink-0">
                     {modProg?.answered ?? 0}/{modProg?.total ?? 0}
                   </span>
                 </div>
@@ -237,28 +279,36 @@ export const PlanBuilderView: React.FC<PlanBuilderViewProps> = ({
 
         {/* Active Module Content */}
         <div className="lg:col-span-9 space-y-6">
-          <div className="bg-white border border-slate-200 rounded-2xl p-6 space-y-2">
+          <div
+            className="bg-white border-2 rounded-2xl p-6 space-y-2"
+            style={{ borderColor: `${currentModule.accentColor}40` }}
+          >
             <div className="flex flex-wrap items-center justify-between gap-2">
               <span
-                className="text-xs font-semibold"
+                className="text-xs font-bold"
                 style={{ color: currentModule.accentColor }}
               >
                 Módulo {currentModule.order} de {MODULES.length}
               </span>
-              <span className="text-xs font-mono tabular-nums text-slate-500">
+              <span className="text-xs font-mono tabular-nums text-slate-600">
                 Preguntas {moduleQuestions[0]?.number}–{moduleQuestions[moduleQuestions.length - 1]?.number}
               </span>
             </div>
-            <h2 className="text-2xl font-bold text-slate-900">{currentModule.title}</h2>
-            <p className="text-sm text-slate-600">{currentModule.description}</p>
+            <h2
+              className="text-2xl font-bold"
+              style={{ color: currentModule.accentColor }}
+            >
+              {currentModule.title}
+            </h2>
+            <p className="text-sm text-slate-700">{currentModule.description}</p>
           </div>
 
           {/* Interactive Workbench for Module 3: Startup Costs & Break-Even */}
           {activeModule === 'm3_costos_socios' && (
-            <section className="bg-white border border-slate-200 rounded-2xl p-6 space-y-6">
+            <section className="bg-white border-2 border-green-200 rounded-2xl p-6 space-y-6">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
-                  <h3 className="text-lg font-bold text-slate-900">
+                  <h3 className="text-lg font-bold text-[#15803D]">
                     Calculadora Interactiva: Costo para Comenzar en Pequeño
                   </h3>
                   <p className="text-sm text-slate-600">
@@ -268,17 +318,17 @@ export const PlanBuilderView: React.FC<PlanBuilderViewProps> = ({
                 <button
                   type="button"
                   onClick={handleAddCostRow}
-                  className="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl transition-colors cursor-pointer whitespace-nowrap shrink-0"
+                  className="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold text-white bg-[#15803D] hover:bg-green-800 rounded-xl transition-colors cursor-pointer whitespace-nowrap shrink-0"
                 >
                   <Plus className="w-4 h-4" />
                   Agregar rubro
                 </button>
               </div>
 
-              <div className="overflow-x-auto border border-slate-200 rounded-xl">
+              <div className="overflow-x-auto border border-slate-200 rounded-xl bg-white">
                 <table className="w-full text-left border-collapse">
                   <thead>
-                    <tr className="bg-slate-50 border-b border-slate-200 text-xs font-semibold text-slate-600">
+                    <tr className="bg-white border-b-2 border-green-200 text-xs font-bold text-[#15803D]">
                       <th className="py-2.5 px-3">Categoría</th>
                       <th className="py-2.5 px-3">Concepto</th>
                       <th className="py-2.5 px-3 text-right">Monto (₡)</th>
@@ -313,7 +363,7 @@ export const PlanBuilderView: React.FC<PlanBuilderViewProps> = ({
                             aria-label="Concepto del costo"
                             value={item.concept}
                             onChange={(e) => handleCostChange(item.id, { concept: e.target.value })}
-                            className="w-full min-w-[200px] px-2.5 py-1.5 text-sm border border-slate-300 rounded-lg"
+                            className="w-full min-w-[200px] px-2.5 py-1.5 text-sm bg-white border border-slate-300 rounded-lg"
                           />
                         </td>
                         <td className="py-2 px-3 text-right">
@@ -326,7 +376,7 @@ export const PlanBuilderView: React.FC<PlanBuilderViewProps> = ({
                             onChange={(e) =>
                               handleCostChange(item.id, { amountCRC: Number(e.target.value) || 0 })
                             }
-                            className="w-32 text-right px-2.5 py-1.5 text-sm font-mono tabular-nums border border-slate-300 rounded-lg"
+                            className="w-32 text-right px-2.5 py-1.5 text-sm font-mono tabular-nums bg-white border border-slate-300 rounded-lg"
                           />
                         </td>
                         <td className="py-2 px-3 text-right">
@@ -334,7 +384,7 @@ export const PlanBuilderView: React.FC<PlanBuilderViewProps> = ({
                             type="button"
                             onClick={() => handleDeleteCostRow(item.id)}
                             aria-label={`Eliminar rubro ${item.concept}`}
-                            className="p-1.5 text-slate-400 hover:text-rose-600 rounded-lg transition-colors cursor-pointer"
+                            className="p-1.5 text-slate-400 hover:text-[#DC2626] rounded-lg transition-colors cursor-pointer"
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>
@@ -343,11 +393,11 @@ export const PlanBuilderView: React.FC<PlanBuilderViewProps> = ({
                     ))}
                   </tbody>
                   <tfoot>
-                    <tr className="bg-slate-50 border-t border-slate-200 font-semibold text-sm">
+                    <tr className="bg-white border-t-2 border-slate-200 font-semibold text-sm">
                       <td colSpan={2} className="py-3 px-3 text-slate-800">
                         Total Inversión Inicial Mínima
                       </td>
-                      <td className="py-3 px-3 text-right font-mono tabular-nums text-emerald-700">
+                      <td className="py-3 px-3 text-right font-mono tabular-nums text-[#15803D]">
                         {formatCRC(financial.totalStartupCostCRC)}
                       </td>
                       <td />
@@ -359,7 +409,7 @@ export const PlanBuilderView: React.FC<PlanBuilderViewProps> = ({
               {/* Unit economics & capital inputs */}
               <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
                 <div>
-                  <label htmlFor="unit-price" className="block text-xs font-medium text-slate-600 mb-1">
+                  <label htmlFor="unit-price" className="block text-xs font-medium text-slate-700 mb-1">
                     Precio unitario (₡)
                   </label>
                   <input
@@ -368,11 +418,11 @@ export const PlanBuilderView: React.FC<PlanBuilderViewProps> = ({
                     min={0}
                     value={state.financialAssumptions.unitPriceCRC}
                     onChange={(e) => onUpdateAssumptions({ unitPriceCRC: Number(e.target.value) || 0 })}
-                    className="w-full px-3 py-2 text-sm font-mono tabular-nums border border-slate-300 rounded-xl"
+                    className="w-full px-3 py-2 text-sm font-mono tabular-nums bg-white border border-slate-300 rounded-xl"
                   />
                 </div>
                 <div>
-                  <label htmlFor="unit-var-cost" className="block text-xs font-medium text-slate-600 mb-1">
+                  <label htmlFor="unit-var-cost" className="block text-xs font-medium text-slate-700 mb-1">
                     Costo variable unit. (₡)
                   </label>
                   <input
@@ -383,11 +433,11 @@ export const PlanBuilderView: React.FC<PlanBuilderViewProps> = ({
                     onChange={(e) =>
                       onUpdateAssumptions({ unitVariableCostCRC: Number(e.target.value) || 0 })
                     }
-                    className="w-full px-3 py-2 text-sm font-mono tabular-nums border border-slate-300 rounded-xl"
+                    className="w-full px-3 py-2 text-sm font-mono tabular-nums bg-white border border-slate-300 rounded-xl"
                   />
                 </div>
                 <div>
-                  <label htmlFor="fixed-op-cost" className="block text-xs font-medium text-slate-600 mb-1">
+                  <label htmlFor="fixed-op-cost" className="block text-xs font-medium text-slate-700 mb-1">
                     Gastos fijos/mes (₡)
                   </label>
                   <input
@@ -398,11 +448,11 @@ export const PlanBuilderView: React.FC<PlanBuilderViewProps> = ({
                     onChange={(e) =>
                       onUpdateAssumptions({ fixedMonthlyOpCostCRC: Number(e.target.value) || 0 })
                     }
-                    className="w-full px-3 py-2 text-sm font-mono tabular-nums border border-slate-300 rounded-xl"
+                    className="w-full px-3 py-2 text-sm font-mono tabular-nums bg-white border border-slate-300 rounded-xl"
                   />
                 </div>
                 <div>
-                  <label htmlFor="est-units" className="block text-xs font-medium text-slate-600 mb-1">
+                  <label htmlFor="est-units" className="block text-xs font-medium text-slate-700 mb-1">
                     Meta unidades/mes
                   </label>
                   <input
@@ -413,11 +463,11 @@ export const PlanBuilderView: React.FC<PlanBuilderViewProps> = ({
                     onChange={(e) =>
                       onUpdateAssumptions({ estimatedMonthlyUnits: Number(e.target.value) || 0 })
                     }
-                    className="w-full px-3 py-2 text-sm font-mono tabular-nums border border-slate-300 rounded-xl"
+                    className="w-full px-3 py-2 text-sm font-mono tabular-nums bg-white border border-slate-300 rounded-xl"
                   />
                 </div>
                 <div>
-                  <label htmlFor="own-cap" className="block text-xs font-medium text-slate-600 mb-1">
+                  <label htmlFor="own-cap" className="block text-xs font-medium text-slate-700 mb-1">
                     Capital propio (₡)
                   </label>
                   <input
@@ -426,38 +476,38 @@ export const PlanBuilderView: React.FC<PlanBuilderViewProps> = ({
                     min={0}
                     value={state.financialAssumptions.ownCapitalCRC}
                     onChange={(e) => onUpdateAssumptions({ ownCapitalCRC: Number(e.target.value) || 0 })}
-                    className="w-full px-3 py-2 text-sm font-mono tabular-nums border border-slate-300 rounded-xl"
+                    className="w-full px-3 py-2 text-sm font-mono tabular-nums bg-white border border-slate-300 rounded-xl"
                   />
                 </div>
               </div>
 
               {/* KPI strip */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-2 border-t border-slate-100">
-                <div className="p-3 rounded-xl bg-slate-50 border border-slate-200">
+                <div className="p-3 rounded-xl bg-white border border-slate-200">
                   <span className="text-xs text-slate-500 block">Margen Contribución</span>
-                  <span className="text-base font-bold font-mono tabular-nums text-slate-900">
+                  <span className="text-base font-bold font-mono tabular-nums text-[#7E22CE]">
                     {formatCRC(financial.unitContributionMarginCRC)} ({financial.contributionMarginPct}%)
                   </span>
                 </div>
-                <div className="p-3 rounded-xl bg-slate-50 border border-slate-200">
+                <div className="p-3 rounded-xl bg-white border border-slate-200">
                   <span className="text-xs text-slate-500 block">Punto de Equilibrio</span>
-                  <span className="text-base font-bold font-mono tabular-nums text-indigo-700">
+                  <span className="text-base font-bold font-mono tabular-nums text-[#1D4ED8]">
                     {financial.breakEvenUnits !== null ? `${financial.breakEvenUnits} unid./mes` : 'N/A'}
                   </span>
                 </div>
-                <div className="p-3 rounded-xl bg-slate-50 border border-slate-200">
+                <div className="p-3 rounded-xl bg-white border border-slate-200">
                   <span className="text-xs text-slate-500 block">Utilidad Neta Meta/mes</span>
                   <span
                     className={`text-base font-bold font-mono tabular-nums ${
-                      financial.monthlyNetProfitCRC >= 0 ? 'text-emerald-700' : 'text-rose-700'
+                      financial.monthlyNetProfitCRC >= 0 ? 'text-[#15803D]' : 'text-[#DC2626]'
                     }`}
                   >
                     {formatCRC(financial.monthlyNetProfitCRC)}
                   </span>
                 </div>
-                <div className="p-3 rounded-xl bg-slate-50 border border-slate-200">
+                <div className="p-3 rounded-xl bg-white border border-slate-200">
                   <span className="text-xs text-slate-500 block">Brecha a Financiar</span>
-                  <span className="text-base font-bold font-mono tabular-nums text-orange-700">
+                  <span className="text-base font-bold font-mono tabular-nums text-[#C2410C]">
                     {formatCRC(financial.capitalGapCRC)}
                   </span>
                 </div>
@@ -465,15 +515,15 @@ export const PlanBuilderView: React.FC<PlanBuilderViewProps> = ({
 
               {/* Visual Charts */}
               <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 pt-2">
-                <div className="p-4 border border-slate-200 rounded-xl">
-                  <h4 className="text-sm font-bold text-slate-900 mb-4">Distribución de Costos Iniciales</h4>
+                <div className="p-4 border border-slate-200 rounded-xl bg-white">
+                  <h4 className="text-sm font-bold text-[#1D4ED8] mb-4">Distribución de Costos Iniciales</h4>
                   <StartupCostDonutChart
                     data={financial.costByCategory}
                     totalCRC={financial.totalStartupCostCRC}
                   />
                 </div>
-                <div className="p-4 border border-slate-200 rounded-xl">
-                  <h4 className="text-sm font-bold text-slate-900 mb-3">Proyección de Flujo a 12 Meses</h4>
+                <div className="p-4 border border-slate-200 rounded-xl bg-white">
+                  <h4 className="text-sm font-bold text-[#7E22CE] mb-3">Proyección de Flujo a 12 Meses</h4>
                   <CashflowProjectionChart points={financial.cashflow12Months} />
                 </div>
               </div>
@@ -482,19 +532,19 @@ export const PlanBuilderView: React.FC<PlanBuilderViewProps> = ({
 
           {/* Interactive Workbench for Module 4: Costa Rica Legal & Tax Matrix */}
           {activeModule === 'm4_legal_tributario' && (
-            <section className="bg-white border border-slate-200 rounded-2xl p-6 space-y-4">
+            <section className="bg-white border-2 border-purple-200 rounded-2xl p-6 space-y-4">
               <div>
-                <h3 className="text-lg font-bold text-slate-900">
+                <h3 className="text-lg font-bold text-[#7E22CE]">
                   Matriz de Permisos Legales y Obligaciones Tributarias en Costa Rica
                 </h3>
                 <p className="text-sm text-slate-600">
-                  Verifica cada trámite obligatorio antes de redactar tus respuestas 22 a 27.
+                  Verifica cada trámite obligatorio antes de redactar tus preguntas 33 a 38.
                 </p>
               </div>
-              <div className="overflow-x-auto border border-slate-200 rounded-xl">
+              <div className="overflow-x-auto border border-slate-200 rounded-xl bg-white">
                 <table className="w-full text-left border-collapse">
                   <thead>
-                    <tr className="bg-slate-50 border-b border-slate-200 text-xs font-semibold text-slate-600">
+                    <tr className="bg-white border-b-2 border-purple-200 text-xs font-bold text-[#7E22CE]">
                       <th className="py-2.5 px-3">Listo</th>
                       <th className="py-2.5 px-3">Institución</th>
                       <th className="py-2.5 px-3">Permiso / Obligación</th>
@@ -505,14 +555,14 @@ export const PlanBuilderView: React.FC<PlanBuilderViewProps> = ({
                   </thead>
                   <tbody className="divide-y divide-slate-200 text-xs sm:text-sm">
                     {state.legalTaxChecklist.map((item) => (
-                      <tr key={item.id} className={item.completed ? 'bg-emerald-50/40' : ''}>
+                      <tr key={item.id} className={item.completed ? 'bg-green-50/40' : 'bg-white'}>
                         <td className="py-3 px-3">
                           <input
                             type="checkbox"
                             aria-label={`Marcar ${item.obligation}`}
                             checked={item.completed}
                             onChange={() => onToggleLegalItem(item.id)}
-                            className="w-4 h-4 accent-violet-600 cursor-pointer"
+                            className="w-4 h-4 accent-[#7E22CE] cursor-pointer"
                           />
                         </td>
                         <td className="py-3 px-3 font-semibold text-slate-900">{item.entity}</td>
@@ -527,7 +577,7 @@ export const PlanBuilderView: React.FC<PlanBuilderViewProps> = ({
                             aria-label={`Nota para ${item.entity}`}
                             value={item.notes}
                             onChange={(e) => onUpdateLegalNotes(item.id, e.target.value)}
-                            className="w-full min-w-[160px] px-2.5 py-1 text-xs border border-slate-300 rounded-lg"
+                            className="w-full min-w-[160px] px-2.5 py-1 text-xs bg-white border border-slate-300 rounded-lg"
                           />
                         </td>
                       </tr>
@@ -540,9 +590,9 @@ export const PlanBuilderView: React.FC<PlanBuilderViewProps> = ({
 
           {/* Interactive Workbench for Module 5: 4 Costa Rican Banks Investigation */}
           {activeModule === 'm5_bancos_financiamiento' && (
-            <section className="bg-white border border-slate-200 rounded-2xl p-6 space-y-6">
+            <section className="bg-white border-2 border-blue-200 rounded-2xl p-6 space-y-6">
               <div>
-                <h3 className="text-lg font-bold text-slate-900">
+                <h3 className="text-lg font-bold text-[#1D4ED8]">
                   Investigación Comparativa: 4 Bancos en Costa Rica
                 </h3>
                 <p className="text-sm text-slate-600">
@@ -557,24 +607,24 @@ export const PlanBuilderView: React.FC<PlanBuilderViewProps> = ({
                   return (
                     <div
                       key={bank.id}
-                      className={`rounded-2xl border p-5 space-y-4 transition-colors ${
+                      className={`rounded-2xl border-2 p-5 space-y-4 transition-colors bg-white ${
                         isChosen
-                          ? 'border-sky-600 bg-sky-50/40 ring-1 ring-sky-600'
-                          : 'border-slate-200 bg-white'
+                          ? 'border-[#1D4ED8] ring-2 ring-blue-600/20'
+                          : 'border-slate-200'
                       }`}
                     >
                       <div className="flex items-start justify-between gap-3">
                         <div>
-                          <h4 className="text-base font-bold text-slate-900">{bank.bankName}</h4>
-                          <p className="text-xs text-slate-500 mt-0.5">{bank.collateralRequired}</p>
+                          <h4 className="text-base font-bold text-[#1D4ED8]">{bank.bankName}</h4>
+                          <p className="text-xs text-slate-600 mt-0.5">{bank.collateralRequired}</p>
                         </div>
                         <button
                           type="button"
                           onClick={() => onSelectBank(bank.id)}
                           className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors cursor-pointer whitespace-nowrap shrink-0 ${
                             isChosen
-                              ? 'bg-sky-600 text-white'
-                              : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                              ? 'bg-[#1D4ED8] text-white'
+                              : 'bg-white border border-slate-300 text-slate-700 hover:bg-blue-50'
                           }`}
                         >
                           {isChosen ? 'Banco Elegido' : 'Elegir este banco'}
@@ -647,7 +697,7 @@ export const PlanBuilderView: React.FC<PlanBuilderViewProps> = ({
                                   type="checkbox"
                                   checked={checked}
                                   onChange={() => handleToggleBankRequirement(bank.id, reqText)}
-                                  className="mt-0.5 accent-sky-600"
+                                  className="mt-0.5 accent-[#1D4ED8]"
                                 />
                                 <span>{reqText}</span>
                               </label>
@@ -674,7 +724,7 @@ export const PlanBuilderView: React.FC<PlanBuilderViewProps> = ({
                       </div>
 
                       {metric && (
-                        <div className="pt-2 border-t border-slate-200/80 flex items-center justify-between text-xs font-mono tabular-nums">
+                        <div className="pt-2 border-t border-slate-200 flex items-center justify-between text-xs font-mono tabular-nums">
                           <span className="text-slate-600">Cuota est. sobre brecha:</span>
                           <span className="font-bold text-slate-900">
                             {formatCRC(metric.monthlyPaymentCRC)} / mes
@@ -687,17 +737,17 @@ export const PlanBuilderView: React.FC<PlanBuilderViewProps> = ({
               </div>
 
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 pt-2">
-                <div className="lg:col-span-7 p-4 border border-slate-200 rounded-xl">
+                <div className="lg:col-span-7 p-4 border border-slate-200 rounded-xl bg-white">
                   <BankComparisonBarChart metrics={bankMetrics} selectedBankId={state.selectedBankId} />
                 </div>
-                <div className="lg:col-span-5 p-4 border border-slate-200 rounded-xl bg-slate-50/70 space-y-2.5">
-                  <h4 className="text-sm font-bold text-slate-900">
+                <div className="lg:col-span-5 p-4 border-2 border-orange-200 rounded-xl bg-white space-y-2.5">
+                  <h4 className="text-sm font-bold text-[#C2410C]">
                     Requisitos Adicionales Clave a Considerar en Costa Rica
                   </h4>
                   <ul className="space-y-2 text-xs text-slate-700 leading-relaxed">
                     {state.extraBankConsiderations.map((item) => (
                       <li key={item} className="flex items-start gap-2">
-                        <Check className="w-3.5 h-3.5 text-sky-600 shrink-0 mt-0.5" />
+                        <Check className="w-3.5 h-3.5 text-[#15803D] shrink-0 mt-0.5" />
                         <span>{item}</span>
                       </li>
                     ))}
@@ -723,30 +773,37 @@ export const PlanBuilderView: React.FC<PlanBuilderViewProps> = ({
                 <article
                   key={q.id}
                   id={`question-${q.id}`}
-                  className={`bg-white border rounded-2xl p-5 sm:p-6 space-y-3 transition-colors ${
-                    answered ? 'border-emerald-200' : 'border-slate-200'
+                  className={`bg-white border-2 rounded-2xl p-5 sm:p-6 space-y-3 transition-colors ${
+                    answered ? 'border-green-300' : 'border-slate-200'
                   }`}
                 >
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div className="space-y-1">
                       <div className="flex flex-wrap items-center gap-2 text-xs">
-                        <span className="font-mono tabular-nums font-bold text-indigo-700">
-                          Pregunta {q.number} de 40
+                        <span
+                          className="font-mono tabular-nums font-bold"
+                          style={{ color: currentModule.accentColor }}
+                        >
+                          Pregunta {q.number} de {progress.totalQuestions}
                         </span>
                         <span aria-hidden="true" className="text-slate-300">·</span>
-                        <span className={answered ? 'font-semibold text-emerald-700' : 'text-slate-500'}>
+                        <span className={answered ? 'font-semibold text-[#15803D]' : 'text-slate-500'}>
                           {answered ? 'Completada' : 'Pendiente (mín. 12 caracteres)'}
                         </span>
                         {linkedCriterion && (
                           <>
                             <span aria-hidden="true" className="text-slate-300">·</span>
-                            <span className="text-slate-500">
+                            <span className="text-slate-600">
                               Aporta a Rúbrica: {linkedCriterion.title}
                             </span>
                           </>
                         )}
                       </div>
-                      <label htmlFor={`input-${q.id}`} className="block text-base sm:text-lg font-bold text-slate-900">
+                      <label
+                        htmlFor={`input-${q.id}`}
+                        className="block text-base sm:text-lg font-bold"
+                        style={{ color: currentModule.accentColor }}
+                      >
                         {q.title}
                       </label>
                     </div>
@@ -755,7 +812,7 @@ export const PlanBuilderView: React.FC<PlanBuilderViewProps> = ({
                       type="button"
                       onClick={() => handleAskQuestionCoach(q.id)}
                       disabled={isCoachLoading}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition-colors cursor-pointer whitespace-nowrap shrink-0"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-[#1D4ED8] bg-white border border-blue-200 hover:bg-blue-50 rounded-lg transition-colors cursor-pointer whitespace-nowrap shrink-0"
                     >
                       {isCoachLoading ? (
                         <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -766,7 +823,7 @@ export const PlanBuilderView: React.FC<PlanBuilderViewProps> = ({
                     </button>
                   </div>
 
-                  <p className="text-sm text-slate-700 leading-relaxed">{q.prompt}</p>
+                  <p className="text-sm text-slate-800 leading-relaxed">{q.prompt}</p>
                   <p className="text-xs text-slate-500">{q.helperHint}</p>
 
                   <textarea
@@ -775,17 +832,17 @@ export const PlanBuilderView: React.FC<PlanBuilderViewProps> = ({
                     value={answer}
                     onChange={(e) => onUpdateAnswer(q.id, e.target.value)}
                     placeholder={q.placeholder}
-                    className="w-full px-3.5 py-2.5 text-sm bg-slate-50/40 focus:bg-white border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                    className="w-full px-3.5 py-2.5 text-sm bg-white border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600"
                   />
 
                   {qCoachErr && (
-                    <p className="text-xs text-rose-700">{qCoachErr}</p>
+                    <p className="text-xs text-[#DC2626]">{qCoachErr}</p>
                   )}
 
                   {coach && (
-                    <div className="p-4 rounded-xl bg-indigo-50/70 border border-indigo-200 space-y-2.5 text-xs">
+                    <div className="p-4 rounded-xl bg-white border-2 border-purple-200 space-y-2.5 text-xs">
                       <div className="flex items-center justify-between gap-2">
-                        <span className="font-bold text-indigo-900">Borrador sugerido por Gemini</span>
+                        <span className="font-bold text-[#7E22CE]">Borrador sugerido por Gemini</span>
                         <button
                           type="button"
                           onClick={() =>
@@ -794,7 +851,7 @@ export const PlanBuilderView: React.FC<PlanBuilderViewProps> = ({
                               answer.trim() ? `${answer.trim()}\n\n${coach.suggestedDraft}` : coach.suggestedDraft
                             )
                           }
-                          className="px-2.5 py-1 font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg transition-colors cursor-pointer"
+                          className="px-2.5 py-1 font-semibold text-white bg-[#7E22CE] hover:bg-purple-800 rounded-lg transition-colors cursor-pointer"
                         >
                           Usar como base
                         </button>
@@ -830,7 +887,7 @@ export const PlanBuilderView: React.FC<PlanBuilderViewProps> = ({
               <button
                 type="button"
                 onClick={() => onChangeModule(MODULES[currentModuleIdx + 1].id)}
-                className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl transition-colors cursor-pointer whitespace-nowrap"
+                className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-white bg-[#1D4ED8] hover:bg-blue-800 rounded-xl transition-colors cursor-pointer whitespace-nowrap"
               >
                 Siguiente módulo
                 <ChevronRight className="w-4 h-4" />
@@ -839,7 +896,7 @@ export const PlanBuilderView: React.FC<PlanBuilderViewProps> = ({
               <button
                 type="button"
                 onClick={onGoToReport}
-                className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl transition-colors cursor-pointer whitespace-nowrap"
+                className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-white bg-[#15803D] hover:bg-green-800 rounded-xl transition-colors cursor-pointer whitespace-nowrap"
               >
                 Ver Informe Final y Rúbrica
                 <ChevronRight className="w-4 h-4" />

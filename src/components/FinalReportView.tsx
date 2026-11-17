@@ -66,7 +66,7 @@ export const FinalReportView: React.FC<FinalReportViewProps> = ({
             companyName: state.companyName,
             passion: state.passionText,
             selectedModel: selectedModel?.name,
-            answeredCount: `${progress.answeredCount}/40`,
+            answeredCount: `${progress.answeredCount}/${progress.totalQuestions}`,
             totalStartupCostCRC: financial.totalStartupCostCRC,
             selectedBank: selectedBank?.bankName,
             answersSample: QUESTIONS_40.map((q) => ({
@@ -130,7 +130,7 @@ export const FinalReportView: React.FC<FinalReportViewProps> = ({
   const roadmapPhases = [
     {
       phase: 'Fase 1 · Mes 0 (Formalización y Prototipo)',
-      color: '#4F46E5',
+      color: '#DC2626',
       items: [
         'Inscripción en Hacienda (ATV/TRIBU-CR) y activación de Facturación Electrónica.',
         'Solicitud de Uso de Suelo, Permiso Sanitario del Ministerio de Salud y Patente Municipal.',
@@ -140,7 +140,7 @@ export const FinalReportView: React.FC<FinalReportViewProps> = ({
     },
     {
       phase: 'Fase 2 · Mes 1 (Lanzamiento Comercial)',
-      color: '#F97316',
+      color: '#C2410C',
       items: [
         'Activación de canales digitales (Instagram, TikTok, Google Perfil y WhatsApp Business).',
         'Ejecución de campaña de primeros 30 días y oferta gancho para clientes pioneros.',
@@ -149,7 +149,7 @@ export const FinalReportView: React.FC<FinalReportViewProps> = ({
     },
     {
       phase: 'Fase 3 · Meses 2–3 (Punto de Equilibrio)',
-      color: '#059669',
+      color: '#15803D',
       items: [
         `Alcanzar la meta mínima de ${financial.breakEvenUnits ?? 'N/A'} unidades/servicios mensuales.`,
         'Revisión semanal de métricas (CAC, recompra, tiempos de entrega) con el equipo.',
@@ -158,7 +158,7 @@ export const FinalReportView: React.FC<FinalReportViewProps> = ({
     },
     {
       phase: 'Fase 4 · Meses 4–6 (Consolidación y Escala)',
-      color: '#0284C7',
+      color: '#1D4ED8',
       items: [
         'Implementación de programa de fidelización y alianzas estratégicas B2B.',
         'Evaluación de capacidad instalada y reinversión de utilidades según pacto de socios.',
@@ -168,13 +168,16 @@ export const FinalReportView: React.FC<FinalReportViewProps> = ({
   ];
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 bg-white">
       {/* Executive Header */}
-      <section className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-xs">
+      <section className="bg-white border-2 border-blue-200 rounded-2xl overflow-hidden shadow-xs">
         <div className="grid grid-cols-1 lg:grid-cols-12 items-stretch">
-          <div className="lg:col-span-8 p-6 sm:p-8 space-y-5 flex flex-col justify-between">
+          <div className="lg:col-span-8 p-6 sm:p-8 space-y-5 flex flex-col justify-between bg-white">
             <div className="space-y-2">
-              <div className="flex flex-wrap items-center gap-2 text-xs font-medium text-indigo-700">
+              <p className="text-xs sm:text-sm font-bold text-[#1E3A8A]">
+                Prof: Liz Acuña. Toma de Decisiones Gerenciales para crear mi empresa.
+              </p>
+              <div className="flex flex-wrap items-center gap-2 text-xs font-semibold text-[#7E22CE]">
                 <span>{state.companyName || 'Empresa Simulada'}</span>
                 <span aria-hidden="true">·</span>
                 <span>{state.studentName || 'Estudiante Emprendedor'}</span>
@@ -185,13 +188,13 @@ export const FinalReportView: React.FC<FinalReportViewProps> = ({
                   </>
                 )}
               </div>
-              <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 text-balance">
+              <h1 className="text-2xl sm:text-3xl font-bold text-[#1D4ED8] text-balance">
                 Informe final : Toma de decision gerencial para construir una empresa
               </h1>
               {state.companySlogan && (
-                <p className="text-base font-medium text-indigo-700">{state.companySlogan}</p>
+                <p className="text-base font-semibold text-[#7E22CE]">{state.companySlogan}</p>
               )}
-              <p className="text-sm text-slate-600 leading-relaxed">
+              <p className="text-sm text-slate-700 leading-relaxed">
                 <strong>Pasión origen:</strong> {state.passionText || 'Sin definir'}
                 {selectedModel ? ` · Modelo: ${selectedModel.name}` : ''}
               </p>
@@ -201,7 +204,7 @@ export const FinalReportView: React.FC<FinalReportViewProps> = ({
               <button
                 type="button"
                 onClick={handleDownloadPDF}
-                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl transition-colors cursor-pointer whitespace-nowrap"
+                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-[#DC2626] hover:bg-red-700 rounded-xl transition-colors cursor-pointer whitespace-nowrap"
               >
                 <Download className="w-4 h-4" />
                 Descargar en PDF
@@ -209,7 +212,7 @@ export const FinalReportView: React.FC<FinalReportViewProps> = ({
               <button
                 type="button"
                 onClick={handleDownloadWord}
-                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-sky-600 hover:bg-sky-700 rounded-xl transition-colors cursor-pointer whitespace-nowrap"
+                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-[#1D4ED8] hover:bg-blue-800 rounded-xl transition-colors cursor-pointer whitespace-nowrap"
               >
                 <FileText className="w-4 h-4" />
                 Descargar en Word (.doc)
@@ -217,7 +220,7 @@ export const FinalReportView: React.FC<FinalReportViewProps> = ({
               <button
                 type="button"
                 onClick={() => window.print()}
-                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors cursor-pointer whitespace-nowrap"
+                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-[#7C2D12] bg-white border-2 border-amber-300 hover:bg-amber-50 rounded-xl transition-colors cursor-pointer whitespace-nowrap"
               >
                 <Printer className="w-4 h-4" />
                 Imprimir
@@ -225,7 +228,7 @@ export const FinalReportView: React.FC<FinalReportViewProps> = ({
             </div>
           </div>
 
-          <div className="lg:col-span-4 min-h-[180px] bg-slate-100 border-t lg:border-t-0 lg:border-l border-slate-200">
+          <div className="lg:col-span-4 min-h-[180px] bg-white border-t lg:border-t-0 lg:border-l border-slate-200">
             {!bannerImgFailed ? (
               <img
                 src="/src/assets/images/roadmap_growth_banner_1794885835598.jpg"
@@ -243,40 +246,40 @@ export const FinalReportView: React.FC<FinalReportViewProps> = ({
         </div>
 
         {/* Executive KPI Strip */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 divide-y sm:divide-y-0 sm:divide-x divide-slate-200 border-t border-slate-200 bg-slate-50/70">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 divide-y sm:divide-y-0 sm:divide-x divide-slate-200 border-t border-slate-200 bg-white">
           <div className="p-4">
             <span className="text-xs text-slate-500 block">Preguntas Resueltas</span>
-            <span className="text-lg font-bold font-mono tabular-nums text-slate-900">
-              {progress.answeredCount} / 40
+            <span className="text-lg font-bold font-mono tabular-nums text-[#DC2626]">
+              {progress.answeredCount} / {progress.totalQuestions}
             </span>
           </div>
           <div className="p-4">
             <span className="text-xs text-slate-500 block">Inversión Inicial</span>
-            <span className="text-lg font-bold font-mono tabular-nums text-slate-900">
+            <span className="text-lg font-bold font-mono tabular-nums text-[#7C2D12]">
               {formatCRC(financial.totalStartupCostCRC)}
             </span>
           </div>
           <div className="p-4">
             <span className="text-xs text-slate-500 block">Brecha Crédito</span>
-            <span className="text-lg font-bold font-mono tabular-nums text-orange-700">
+            <span className="text-lg font-bold font-mono tabular-nums text-[#C2410C]">
               {formatCRC(financial.capitalGapCRC)}
             </span>
           </div>
           <div className="p-4">
             <span className="text-xs text-slate-500 block">Punto Equilibrio</span>
-            <span className="text-lg font-bold font-mono tabular-nums text-indigo-700">
+            <span className="text-lg font-bold font-mono tabular-nums text-[#7E22CE]">
               {financial.breakEvenUnits ?? 'N/A'} unid./mes
             </span>
           </div>
           <div className="p-4">
             <span className="text-xs text-slate-500 block">Banco Elegido</span>
-            <span className="text-lg font-bold text-sky-700 truncate block">
+            <span className="text-lg font-bold text-[#1D4ED8] truncate block">
               {selectedBank?.shortName || 'Pendiente'}
             </span>
           </div>
           <div className="p-4">
             <span className="text-xs text-slate-500 block">Nota Rúbrica SIG</span>
-            <span className="text-lg font-bold font-mono tabular-nums text-emerald-700">
+            <span className="text-lg font-bold font-mono tabular-nums text-[#15803D]">
               {rubricSummary.totalScore} / 40 pts
             </span>
           </div>
@@ -285,16 +288,16 @@ export const FinalReportView: React.FC<FinalReportViewProps> = ({
 
       {/* Financial Charts & Table */}
       <section className="grid grid-cols-1 xl:grid-cols-12 gap-6 print-break-inside-avoid">
-        <div className="xl:col-span-5 bg-white border border-slate-200 rounded-2xl p-6 space-y-5">
-          <h2 className="text-lg font-bold text-slate-900">1. Estructura de Costos Iniciales</h2>
+        <div className="xl:col-span-5 bg-white border-2 border-green-200 rounded-2xl p-6 space-y-5">
+          <h2 className="text-lg font-bold text-[#15803D]">1. Estructura de Costos Iniciales</h2>
           <StartupCostDonutChart
             data={financial.costByCategory}
             totalCRC={financial.totalStartupCostCRC}
           />
-          <div className="overflow-x-auto border border-slate-200 rounded-xl">
+          <div className="overflow-x-auto border border-slate-200 rounded-xl bg-white">
             <table className="w-full text-left border-collapse text-xs">
               <thead>
-                <tr className="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold">
+                <tr className="bg-white border-b-2 border-green-200 text-[#15803D] font-bold">
                   <th className="py-2 px-3">Rubro</th>
                   <th className="py-2 px-3">Concepto</th>
                   <th className="py-2 px-3 text-right">Monto</th>
@@ -302,7 +305,7 @@ export const FinalReportView: React.FC<FinalReportViewProps> = ({
               </thead>
               <tbody className="divide-y divide-slate-200">
                 {state.startupCosts.map((c) => (
-                  <tr key={c.id}>
+                  <tr key={c.id} className="bg-white">
                     <td className="py-2 px-3 font-medium text-slate-800">{c.category}</td>
                     <td className="py-2 px-3 text-slate-600">{c.concept}</td>
                     <td className="py-2 px-3 text-right font-mono tabular-nums text-slate-900">
@@ -315,10 +318,10 @@ export const FinalReportView: React.FC<FinalReportViewProps> = ({
           </div>
         </div>
 
-        <div className="xl:col-span-7 bg-white border border-slate-200 rounded-2xl p-6 space-y-5">
+        <div className="xl:col-span-7 bg-white border-2 border-blue-200 rounded-2xl p-6 space-y-5">
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <h2 className="text-lg font-bold text-slate-900">2. Proyección Financiera (12 Meses)</h2>
-            <span className="text-xs font-mono tabular-nums text-slate-500">
+            <h2 className="text-lg font-bold text-[#1D4ED8]">2. Proyección Financiera (12 Meses)</h2>
+            <span className="text-xs font-mono tabular-nums text-slate-600">
               Recuperación est.: {financial.paybackMonths ? `${financial.paybackMonths} meses` : 'N/A'}
             </span>
           </div>
@@ -327,21 +330,21 @@ export const FinalReportView: React.FC<FinalReportViewProps> = ({
       </section>
 
       {/* 4 Costa Rican Banks Table & Chart */}
-      <section className="bg-white border border-slate-200 rounded-2xl p-6 space-y-5 print-break-inside-avoid">
+      <section className="bg-white border-2 border-purple-200 rounded-2xl p-6 space-y-5 print-break-inside-avoid">
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <h2 className="text-lg font-bold text-slate-900">
+          <h2 className="text-lg font-bold text-[#7E22CE]">
             3. Comparativa de Financiamiento en 4 Bancos de Costa Rica
           </h2>
-          <span className="text-xs font-semibold text-sky-700">
+          <span className="text-xs font-bold text-[#1D4ED8]">
             Banco Seleccionado: {selectedBank?.bankName || 'Sin seleccionar'}
           </span>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-          <div className="lg:col-span-7 overflow-x-auto border border-slate-200 rounded-xl">
+          <div className="lg:col-span-7 overflow-x-auto border border-slate-200 rounded-xl bg-white">
             <table className="w-full text-left border-collapse text-xs sm:text-sm">
               <thead>
-                <tr className="bg-slate-50 border-b border-slate-200 text-xs font-semibold text-slate-600">
+                <tr className="bg-white border-b-2 border-purple-200 text-xs font-bold text-[#7E22CE]">
                   <th className="py-2.5 px-3">Banco</th>
                   <th className="py-2.5 px-3">Producto PyME</th>
                   <th className="py-2.5 px-3 text-right">Tasa</th>
@@ -354,7 +357,7 @@ export const FinalReportView: React.FC<FinalReportViewProps> = ({
                   const m = bankMetrics.find((x) => x.bankId === bank.id);
                   const isChosen = bank.id === state.selectedBankId;
                   return (
-                    <tr key={bank.id} className={isChosen ? 'bg-sky-50/70 font-semibold' : ''}>
+                    <tr key={bank.id} className={isChosen ? 'bg-blue-50/50 font-semibold' : 'bg-white'}>
                       <td className="py-2.5 px-3 text-slate-900">
                         {bank.shortName} {isChosen ? '(Elegido)' : ''}
                       </td>
@@ -381,13 +384,17 @@ export const FinalReportView: React.FC<FinalReportViewProps> = ({
       </section>
 
       {/* Professional Roadmap */}
-      <section className="bg-white border border-slate-200 rounded-2xl p-6 space-y-5 print-break-inside-avoid">
-        <h2 className="text-lg font-bold text-slate-900">
+      <section className="bg-white border-2 border-orange-200 rounded-2xl p-6 space-y-5 print-break-inside-avoid">
+        <h2 className="text-lg font-bold text-[#C2410C]">
           4. Hoja de Ruta Profesional de Implementación
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {roadmapPhases.map((phase) => (
-            <div key={phase.phase} className="p-4 rounded-xl border border-slate-200 bg-slate-50/50 space-y-3">
+            <div
+              key={phase.phase}
+              className="p-4 rounded-xl border-2 bg-white space-y-3"
+              style={{ borderColor: `${phase.color}33` }}
+            >
               <div className="text-xs font-bold" style={{ color: phase.color }}>
                 {phase.phase}
               </div>
@@ -401,14 +408,14 @@ export const FinalReportView: React.FC<FinalReportViewProps> = ({
         </div>
       </section>
 
-      {/* Consolidated 40 Answers */}
-      <section className="bg-white border border-slate-200 rounded-2xl p-6 space-y-6">
+      {/* Consolidated 51 Answers */}
+      <section className="bg-white border-2 border-amber-300 rounded-2xl p-6 space-y-6">
         <div className="flex items-center justify-between gap-3">
-          <h2 className="text-lg font-bold text-slate-900">
-            5. Consolidado Completo de las 40 Decisiones del Plan de Negocios
+          <h2 className="text-lg font-bold text-[#7C2D12]">
+            5. Consolidado Completo de las {progress.totalQuestions} Decisiones del Plan de Negocios
           </h2>
-          <span className="text-xs font-mono tabular-nums text-slate-500">
-            {progress.answeredCount} / 40 respondidas
+          <span className="text-xs font-mono tabular-nums font-bold text-[#15803D]">
+            {progress.answeredCount} / {progress.totalQuestions} respondidas
           </span>
         </div>
 
@@ -417,13 +424,16 @@ export const FinalReportView: React.FC<FinalReportViewProps> = ({
             const modQuestions = QUESTIONS_40.filter((q) => q.moduleId === mod.id);
             return (
               <div key={mod.id} className="space-y-3">
-                <h3 className="text-sm font-bold text-slate-900 pb-2 border-b border-slate-200">
+                <h3
+                  className="text-sm font-bold pb-2 border-b-2"
+                  style={{ color: mod.accentColor, borderColor: `${mod.accentColor}40` }}
+                >
                   {mod.title}
                 </h3>
-                <div className="overflow-x-auto border border-slate-200 rounded-xl">
+                <div className="overflow-x-auto border border-slate-200 rounded-xl bg-white">
                   <table className="w-full text-left border-collapse text-xs sm:text-sm">
                     <thead>
-                      <tr className="bg-slate-50 border-b border-slate-200 text-xs font-semibold text-slate-600">
+                      <tr className="bg-white border-b border-slate-200 text-xs font-bold text-slate-700">
                         <th className="py-2.5 px-3 w-12">#</th>
                         <th className="py-2.5 px-3 w-64">Aspecto Evaluado</th>
                         <th className="py-2.5 px-3">Decisión y Respuesta del Estudiante</th>
@@ -433,11 +443,14 @@ export const FinalReportView: React.FC<FinalReportViewProps> = ({
                       {modQuestions.map((q) => {
                         const ans = state.answers[q.id]?.trim();
                         return (
-                          <tr key={q.id}>
-                            <td className="py-2.5 px-3 font-mono tabular-nums font-semibold text-indigo-700 align-top">
+                          <tr key={q.id} className="bg-white">
+                            <td
+                              className="py-2.5 px-3 font-mono tabular-nums font-bold align-top"
+                              style={{ color: mod.accentColor }}
+                            >
                               {q.number}
                             </td>
-                            <td className="py-2.5 px-3 font-semibold text-slate-800 align-top">
+                            <td className="py-2.5 px-3 font-semibold text-slate-900 align-top">
                               {q.title}
                             </td>
                             <td className="py-2.5 px-3 text-slate-700 whitespace-pre-wrap align-top">
@@ -458,13 +471,13 @@ export const FinalReportView: React.FC<FinalReportViewProps> = ({
       </section>
 
       {/* Mandatory SIG Rubric (10 Criteria x 4 Points = 40 Points) */}
-      <section id="rubrica-sig" className="bg-white border border-slate-200 rounded-2xl p-6 sm:p-8 space-y-6">
+      <section id="rubrica-sig" className="bg-white border-2 border-red-200 rounded-2xl p-6 sm:p-8 space-y-6">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="space-y-1">
-            <span className="text-xs font-semibold text-indigo-700">
+            <span className="text-xs font-bold text-[#7E22CE]">
               Instrumento Oficial de Evaluación (Base 40 Puntos)
             </span>
-            <h2 className="text-xl sm:text-2xl font-bold text-slate-900">
+            <h2 className="text-xl sm:text-2xl font-bold text-[#DC2626]">
               Rúbrica de la propuesta de sistema de información gerencial
             </h2>
             <p className="text-sm text-slate-600">
@@ -475,7 +488,7 @@ export const FinalReportView: React.FC<FinalReportViewProps> = ({
             type="button"
             onClick={handleEvaluateWithGemini}
             disabled={isEvaluating}
-            className="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 disabled:opacity-60 rounded-xl transition-colors cursor-pointer whitespace-nowrap shrink-0 no-print"
+            className="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-white bg-[#7E22CE] hover:bg-purple-800 disabled:opacity-60 rounded-xl transition-colors cursor-pointer whitespace-nowrap shrink-0 no-print"
           >
             {isEvaluating ? (
               <>
@@ -492,16 +505,16 @@ export const FinalReportView: React.FC<FinalReportViewProps> = ({
         </div>
 
         {evalError && (
-          <div role="alert" className="flex items-start gap-2.5 p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-sm text-rose-800">
-            <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-rose-600" />
+          <div role="alert" className="flex items-start gap-2.5 p-3.5 rounded-xl bg-white border-2 border-red-300 text-sm text-[#DC2626]">
+            <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-[#DC2626]" />
             <span>{evalError}</span>
           </div>
         )}
 
-        <div className="overflow-x-auto border border-slate-200 rounded-xl">
+        <div className="overflow-x-auto border border-slate-200 rounded-xl bg-white">
           <table className="w-full text-left border-collapse text-xs">
             <thead>
-              <tr className="bg-slate-900 text-white">
+              <tr className="bg-[#1D4ED8] text-white">
                 <th className="py-3 px-3 w-52">CRITERIOS</th>
                 <th className="py-3 px-3 text-center w-48">4</th>
                 <th className="py-3 px-3 text-center w-48">3</th>
@@ -515,11 +528,11 @@ export const FinalReportView: React.FC<FinalReportViewProps> = ({
                 const currentScore = state.rubric.scores[criterion.id] ?? 1;
                 const justification = state.rubric.justifications[criterion.id];
                 return (
-                  <tr key={criterion.id} className="align-top">
-                    <td className="py-3 px-3 font-semibold text-slate-900 bg-slate-50/70">
+                  <tr key={criterion.id} className="align-top bg-white">
+                    <td className="py-3 px-3 font-semibold text-slate-900 bg-white">
                       <div>{criterion.title}</div>
                       {justification && (
-                        <p className="mt-1.5 text-[11px] font-normal text-indigo-700 leading-snug">
+                        <p className="mt-1.5 text-[11px] font-normal text-[#1D4ED8] leading-snug">
                           {justification}
                         </p>
                       )}
@@ -530,7 +543,7 @@ export const FinalReportView: React.FC<FinalReportViewProps> = ({
                         <td
                           key={level}
                           className={`py-2.5 px-2.5 border-l border-slate-200 transition-colors ${
-                            isSelected ? 'bg-indigo-50 ring-1 ring-inset ring-indigo-500' : 'hover:bg-slate-50'
+                            isSelected ? 'bg-blue-50/50 ring-1 ring-inset ring-[#1D4ED8]' : 'bg-white hover:bg-slate-50/50'
                           }`}
                         >
                           <button
@@ -543,13 +556,13 @@ export const FinalReportView: React.FC<FinalReportViewProps> = ({
                             <div className="flex items-center justify-between">
                               <span
                                 className={`font-mono tabular-nums font-bold ${
-                                  isSelected ? 'text-indigo-700' : 'text-slate-500'
+                                  isSelected ? 'text-[#1D4ED8]' : 'text-slate-500'
                                 }`}
                               >
                                 {level} pts
                               </span>
                               {isSelected && (
-                                <span className="text-[11px] font-semibold text-indigo-700">
+                                <span className="text-[11px] font-semibold text-[#15803D]">
                                   Seleccionado
                                 </span>
                               )}
@@ -559,7 +572,7 @@ export const FinalReportView: React.FC<FinalReportViewProps> = ({
                         </td>
                       );
                     })}
-                    <td className="py-3 px-3 text-right font-mono tabular-nums font-bold text-slate-900 border-l border-slate-200 bg-slate-50/40">
+                    <td className="py-3 px-3 text-right font-mono tabular-nums font-bold text-[#15803D] border-l border-slate-200 bg-white">
                       {currentScore} / 4
                     </td>
                   </tr>
@@ -567,11 +580,11 @@ export const FinalReportView: React.FC<FinalReportViewProps> = ({
               })}
             </tbody>
             <tfoot>
-              <tr className="bg-indigo-50 border-t-2 border-indigo-300 font-bold text-sm">
+              <tr className="bg-white border-t-2 border-[#1D4ED8] font-bold text-sm">
                 <td colSpan={5} className="py-3.5 px-4 text-slate-900">
                   TOTAL (El puntaje se calcula con base en 40 puntos — suma exacta de cada criterio evaluado)
                 </td>
-                <td className="py-3.5 px-3 text-right font-mono tabular-nums text-lg text-indigo-800">
+                <td className="py-3.5 px-3 text-right font-mono tabular-nums text-lg text-[#15803D]">
                   {rubricSummary.totalScore} / 40
                 </td>
               </tr>
@@ -581,19 +594,19 @@ export const FinalReportView: React.FC<FinalReportViewProps> = ({
 
         {/* Visual Rubric Chart + Explanatory Final Comment */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-          <div className="lg:col-span-6 p-5 border border-slate-200 rounded-xl">
+          <div className="lg:col-span-6 p-5 border border-slate-200 rounded-xl bg-white">
             <RubricProfileChart scores={state.rubric.scores} />
           </div>
 
-          <div className="lg:col-span-6 p-5 border border-slate-200 rounded-xl bg-slate-50/70 space-y-3">
+          <div className="lg:col-span-6 p-5 border-2 border-purple-200 rounded-xl bg-white space-y-3">
             <div className="flex items-center justify-between gap-2">
-              <label htmlFor="rubric-final-comment" className="text-sm font-bold text-slate-900">
+              <label htmlFor="rubric-final-comment" className="text-sm font-bold text-[#7E22CE]">
                 Comentario Final Explicativo de la Puntuación ({rubricSummary.totalScore}/40)
               </label>
               <button
                 type="button"
                 onClick={() => onSetRubricComment(rubricSummary.generatedComment)}
-                className="text-xs font-semibold text-indigo-700 hover:underline cursor-pointer no-print"
+                className="text-xs font-semibold text-[#1D4ED8] hover:underline cursor-pointer no-print"
               >
                 Regenerar resumen automático
               </button>
@@ -603,9 +616,9 @@ export const FinalReportView: React.FC<FinalReportViewProps> = ({
               rows={5}
               value={activeFinalComment}
               onChange={(e) => onSetRubricComment(e.target.value)}
-              className="w-full px-3.5 py-2.5 text-sm bg-white border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full px-3.5 py-2.5 text-sm bg-white border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-600"
             />
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-slate-600">
               Nivel alcanzado: <strong>{rubricSummary.performanceLevel}</strong> ({rubricSummary.percentage}%). Puedes editar este comentario docente manualmente o generarlo automáticamente.
             </p>
           </div>

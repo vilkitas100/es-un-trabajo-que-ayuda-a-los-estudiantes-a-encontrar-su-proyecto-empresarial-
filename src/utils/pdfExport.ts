@@ -50,10 +50,11 @@ export function downloadReportAsPDF(state: BusinessPlanState): void {
   doc.setFontSize(10);
   let y = 42;
   const metaLines = [
+    `Curso: Prof: Liz Acuña. Toma de Decisiones Gerenciales para crear mi empresa.`,
     `Pasion base: ${state.passionText || 'Sin definir'}`,
     `Modelo seleccionado: ${selectedModel?.name || 'Pendiente'}`,
-    `Equipo: ${state.teamMembers || 'Individual'} | Docente: ${state.teacherName || 'No asignado'}`,
-    `Avance academico: ${progress.answeredCount}/40 preguntas (${progress.percentage}%) | Rubrica SIG: ${rubricSummary.totalScore}/40 pts`,
+    `Equipo: ${state.teamMembers || 'Individual'} | Docente: ${state.teacherName || 'Prof. Liz Acuña'}`,
+    `Avance academico: ${progress.answeredCount}/${progress.totalQuestions} preguntas (${progress.percentage}%) | Rubrica SIG: ${rubricSummary.totalScore}/40 pts`,
   ];
   for (const line of metaLines) {
     const wrapped = doc.splitTextToSize(line, 182);
@@ -123,7 +124,7 @@ export function downloadReportAsPDF(state: BusinessPlanState): void {
   doc.addPage();
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(12);
-  doc.text('4. Desarrollo Completo de las 40 Preguntas Estrategicas', 14, 16);
+  doc.text(`4. Desarrollo Completo de las ${QUESTIONS_40.length} Preguntas Estrategicas`, 14, 16);
 
   const qRows: Array<[string, string, string]> = [];
   for (const mod of MODULES) {

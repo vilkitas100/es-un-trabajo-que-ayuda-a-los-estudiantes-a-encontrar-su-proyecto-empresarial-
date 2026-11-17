@@ -17,6 +17,7 @@ import { PlanBuilderView } from './components/PlanBuilderView';
 import { ProgressDashboardView } from './components/ProgressDashboardView';
 import { FinalReportView } from './components/FinalReportView';
 import { GeminiMentorDrawer } from './components/GeminiMentorDrawer';
+import { CelebrationResetModal } from './components/CelebrationResetModal';
 
 const STORAGE_KEY = 'emprendecr_studio_state_v1';
 
@@ -47,13 +48,15 @@ export default function App() {
   const [activeTab, setActiveTab] = useState<AppTab>(() => {
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search);
-      if (params.get('autostart') === '1') return 'builder';
       if (params.get('tab') === 'report') return 'report';
+      if (params.get('tab') === 'progress') return 'progress';
+      if (params.get('autostart') === '1') return 'builder';
     }
     return 'passion';
   });
   const [activeModule, setActiveModule] = useState<ModuleId>('m1_pasion');
   const [isMentorOpen, setIsMentorOpen] = useState(false);
+  const [showResetCelebration, setShowResetCelebration] = useState(false);
   const syncTimerRef = useRef<number | null>(null);
 
   // Persist to localStorage immediately AND sync to backend session memory
@@ -110,8 +113,8 @@ export default function App() {
       answers: {
         ...prev.answers,
         q1: prev.answers.q1 || prev.passionText,
-        q3:
-          prev.answers.q3 ||
+        q10:
+          prev.answers.q10 ||
           `Elegí el modelo "${proposal.name}" porque ${proposal.description} Su inversión inicial aproximada es de ₡${proposal.estimatedInitialCostCRC.toLocaleString('en-US')}.`,
       },
     }));
@@ -227,7 +230,8 @@ export default function App() {
   };
 
   const handleRestoreSession = async (sessionCode: string) => {
-    if (sessionCode.toUpperCase() === 'CR-DEMO40') {
+    const code = sessionCode.toUpperCase();
+    if (code === 'CR-DEMO51' || code === 'CR-DEMO40') {
       setState(createDemoBusinessPlanState());
       return;
     }
@@ -257,28 +261,29 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900">
+    <div className="min-h-screen flex flex-col bg-white text-slate-900">
       {/* Strict 3-Zone Top Bar Contract */}
-      <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-xs border-b border-slate-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-8">
+      <header className="sticky top-0 z-40 bg-white border-b-2 border-blue-100">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4 sm:gap-6">
           {/* Zone 1: Single-line Wordmark */}
           <button
             type="button"
             onClick={() => setActiveTab('passion')}
-            className="text-lg font-bold tracking-tight text-slate-900 whitespace-nowrap shrink-0 cursor-pointer font-display"
+            title="Prof: Liz Acuña. Toma de Decisiones Gerenciales para crear mi empresa."
+            className="text-sm sm:text-base font-bold tracking-tight text-[#1E3A8A] whitespace-nowrap shrink-0 cursor-pointer font-display truncate max-w-[200px] sm:max-w-[300px] lg:max-w-[440px] xl:max-w-none"
           >
-            EmprendeCR Studio
+            Prof: Liz Acuña. Toma de Decisiones Gerenciales para crear mi empresa
           </button>
 
           {/* Zone 2: 4 Clean Single-line Nav Links */}
-          <nav aria-label="Navegación principal" className="hidden md:flex items-center gap-6 text-sm font-medium">
+          <nav aria-label="Navegación principal" className="hidden md:flex items-center gap-5 text-sm font-semibold">
             <button
               type="button"
               onClick={() => setActiveTab('passion')}
               className={`py-1 border-b-2 transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
                 activeTab === 'passion'
-                  ? 'border-indigo-600 text-indigo-700 font-semibold'
-                  : 'border-transparent text-slate-600 hover:text-slate-900'
+                  ? 'border-[#DC2626] text-[#DC2626]'
+                  : 'border-transparent text-slate-600 hover:text-[#DC2626]'
               }`}
             >
               1. Pasión
@@ -288,19 +293,19 @@ export default function App() {
               onClick={() => setActiveTab('builder')}
               className={`py-1 border-b-2 transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
                 activeTab === 'builder'
-                  ? 'border-indigo-600 text-indigo-700 font-semibold'
-                  : 'border-transparent text-slate-600 hover:text-slate-900'
+                  ? 'border-[#1D4ED8] text-[#1D4ED8]'
+                  : 'border-transparent text-slate-600 hover:text-[#1D4ED8]'
               }`}
             >
-              2. Plan ({progress.answeredCount}/40)
+              2. Plan ({progress.answeredCount}/{progress.totalQuestions})
             </button>
             <button
               type="button"
               onClick={() => setActiveTab('progress')}
               className={`py-1 border-b-2 transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
                 activeTab === 'progress'
-                  ? 'border-indigo-600 text-indigo-700 font-semibold'
-                  : 'border-transparent text-slate-600 hover:text-slate-900'
+                  ? 'border-[#7E22CE] text-[#7E22CE]'
+                  : 'border-transparent text-slate-600 hover:text-[#7E22CE]'
               }`}
             >
               3. Progreso
@@ -310,8 +315,8 @@ export default function App() {
               onClick={() => setActiveTab('report')}
               className={`py-1 border-b-2 transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
                 activeTab === 'report'
-                  ? 'border-indigo-600 text-indigo-700 font-semibold'
-                  : 'border-transparent text-slate-600 hover:text-slate-900'
+                  ? 'border-[#15803D] text-[#15803D]'
+                  : 'border-transparent text-slate-600 hover:text-[#15803D]'
               }`}
             >
               4. Informe y Rúbrica
@@ -323,7 +328,7 @@ export default function App() {
             <button
               type="button"
               onClick={() => setIsMentorOpen(true)}
-              className="inline-flex items-center gap-2 px-4 py-2 text-xs sm:text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl transition-colors whitespace-nowrap shrink-0 cursor-pointer"
+              className="inline-flex items-center gap-2 px-4 py-2 text-xs sm:text-sm font-semibold text-white bg-[#EA580C] hover:bg-orange-700 rounded-xl transition-colors whitespace-nowrap shrink-0 cursor-pointer"
             >
               <Bot className="w-4 h-4" />
               Agente Gemini
@@ -332,12 +337,12 @@ export default function App() {
         </div>
 
         {/* Mobile Nav Bar (compact single row) */}
-        <nav aria-label="Navegación móvil" className="flex md:hidden items-center justify-between px-4 py-2 border-t border-slate-100 text-xs font-medium overflow-x-auto gap-3">
+        <nav aria-label="Navegación móvil" className="flex md:hidden items-center justify-between px-4 py-2 border-t border-slate-100 text-xs font-semibold overflow-x-auto gap-3 bg-white">
           <button
             type="button"
             onClick={() => setActiveTab('passion')}
             className={`whitespace-nowrap shrink-0 px-2 py-1 rounded-md ${
-              activeTab === 'passion' ? 'bg-indigo-50 text-indigo-700 font-semibold' : 'text-slate-600'
+              activeTab === 'passion' ? 'text-[#DC2626] underline underline-offset-4' : 'text-slate-600'
             }`}
           >
             1. Pasión
@@ -346,16 +351,16 @@ export default function App() {
             type="button"
             onClick={() => setActiveTab('builder')}
             className={`whitespace-nowrap shrink-0 px-2 py-1 rounded-md ${
-              activeTab === 'builder' ? 'bg-indigo-50 text-indigo-700 font-semibold' : 'text-slate-600'
+              activeTab === 'builder' ? 'text-[#1D4ED8] underline underline-offset-4' : 'text-slate-600'
             }`}
           >
-            2. Plan ({progress.answeredCount}/40)
+            2. Plan ({progress.answeredCount}/{progress.totalQuestions})
           </button>
           <button
             type="button"
             onClick={() => setActiveTab('progress')}
             className={`whitespace-nowrap shrink-0 px-2 py-1 rounded-md ${
-              activeTab === 'progress' ? 'bg-indigo-50 text-indigo-700 font-semibold' : 'text-slate-600'
+              activeTab === 'progress' ? 'text-[#7E22CE] underline underline-offset-4' : 'text-slate-600'
             }`}
           >
             3. Progreso
@@ -364,7 +369,7 @@ export default function App() {
             type="button"
             onClick={() => setActiveTab('report')}
             className={`whitespace-nowrap shrink-0 px-2 py-1 rounded-md ${
-              activeTab === 'report' ? 'bg-indigo-50 text-indigo-700 font-semibold' : 'text-slate-600'
+              activeTab === 'report' ? 'text-[#15803D] underline underline-offset-4' : 'text-slate-600'
             }`}
           >
             4. Informe
@@ -373,7 +378,7 @@ export default function App() {
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-8">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-8 bg-white">
         {activeTab === 'passion' && (
           <PassionDiscoveryView
             state={state}
@@ -388,6 +393,7 @@ export default function App() {
           <PlanBuilderView
             state={state}
             activeModule={activeModule}
+            onUpdateField={updateField}
             onChangeModule={setActiveModule}
             onUpdateAnswer={handleUpdateAnswer}
             onUpdateStartupCosts={handleUpdateStartupCosts}
@@ -420,9 +426,10 @@ export default function App() {
 
       {/* Quiet Footer */}
       <footer className="border-t border-slate-200 bg-white no-print">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-500">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-600">
           <span>
-            EmprendeCR Studio · Código de sesión: <strong className="font-mono text-slate-700">{state.sessionId}</strong> (avances guardados automáticamente)
+            <strong className="text-[#1E3A8A]">Prof: Liz Acuña.</strong> Toma de Decisiones Gerenciales para crear mi empresa · Código de sesión:{' '}
+            <strong className="font-mono text-[#7E22CE]">{state.sessionId}</strong> (avances guardados automáticamente)
           </span>
           <button
             type="button"
@@ -430,8 +437,10 @@ export default function App() {
               window.localStorage.removeItem(STORAGE_KEY);
               setState(createEmptyBusinessPlanState());
               setActiveTab('passion');
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+              setShowResetCelebration(true);
             }}
-            className="text-slate-500 hover:text-rose-600 transition-colors cursor-pointer"
+            className="text-slate-600 hover:text-[#DC2626] font-medium transition-colors cursor-pointer"
           >
             Reiniciar proyecto
           </button>
@@ -445,6 +454,12 @@ export default function App() {
         state={state}
         onAppendMessages={handleAppendMentorMessages}
         onRestoreSession={handleRestoreSession}
+      />
+
+      {/* Celebratory Reset Modal */}
+      <CelebrationResetModal
+        isOpen={showResetCelebration}
+        onClose={() => setShowResetCelebration(false)}
       />
     </div>
   );

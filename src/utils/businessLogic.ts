@@ -301,15 +301,16 @@ export function buildReportMarkdown(state: BusinessPlanState): string {
 
   const lines: string[] = [];
   lines.push(`# Informe final : Toma de decision gerencial para construir una empresa`);
+  lines.push(`**Curso:** Prof: Liz Acuña. Toma de Decisiones Gerenciales para crear mi empresa.`);
   lines.push(`## Empresa Simulada: ${state.companyName || 'Por definir'}`);
   if (state.companySlogan) lines.push(`> *${state.companySlogan}*`);
   lines.push('');
   lines.push(`- **Estudiante:** ${state.studentName || 'Sin especificar'}`);
   if (state.teamMembers) lines.push(`- **Equipo Colaborativo:** ${state.teamMembers}`);
-  if (state.teacherName) lines.push(`- **Docente:** ${state.teacherName}`);
+  lines.push(`- **Docente:** ${state.teacherName || 'Prof. Liz Acuña'}`);
   lines.push(`- **Pasión Base:** ${state.passionText || 'Sin especificar'}`);
   if (selectedModel) lines.push(`- **Modelo Seleccionado:** ${selectedModel.name}`);
-  lines.push(`- **Progreso Académico:** ${progress.answeredCount}/40 preguntas resueltas (${progress.percentage}%)`);
+  lines.push(`- **Progreso Académico:** ${progress.answeredCount}/${progress.totalQuestions} preguntas resueltas (${progress.percentage}%)`);
   lines.push('');
 
   lines.push('## 1. Resumen Financiero Inicial');
@@ -340,7 +341,7 @@ export function buildReportMarkdown(state: BusinessPlanState): string {
   }
   lines.push('');
 
-  lines.push('## 3. Desarrollo de las 40 Preguntas Estratégicas');
+  lines.push(`## 3. Desarrollo de las ${progress.totalQuestions} Preguntas Estratégicas`);
   for (const mod of MODULES) {
     lines.push(`### ${mod.title}`);
     const modQuestions = QUESTIONS_40.filter((q) => q.moduleId === mod.id);
@@ -476,12 +477,13 @@ export function buildWordReportHtml(state: BusinessPlanState): string {
 </head>
 <body>
   <h1>Informe final : Toma de decision gerencial para construir una empresa</h1>
+  <p style="color:#1E3A8A;font-weight:bold;margin-top:0;">Prof: Liz Acuña. Toma de Decisiones Gerenciales para crear mi empresa.</p>
   <div class="kpi">
     <p><strong>Empresa Simulada:</strong> ${escapeHtml(state.companyName || 'Sin definir')} ${state.companySlogan ? `— <em>${escapeHtml(state.companySlogan)}</em>` : ''}</p>
-    <p><strong>Estudiante:</strong> ${escapeHtml(state.studentName || 'Sin especificar')} | <strong>Docente:</strong> ${escapeHtml(state.teacherName || 'Sin especificar')}</p>
+    <p><strong>Estudiante:</strong> ${escapeHtml(state.studentName || 'Sin especificar')} | <strong>Docente:</strong> ${escapeHtml(state.teacherName || 'Prof. Liz Acuña')}</p>
     ${state.teamMembers ? `<p><strong>Equipo Colaborativo:</strong> ${escapeHtml(state.teamMembers)}</p>` : ''}
     <p><strong>Pasión de Origen:</strong> ${escapeHtml(state.passionText || 'Sin definir')}</p>
-    <p><strong>Modelo de Negocio Elegido:</strong> ${escapeHtml(selectedModel?.name || 'Pendiente')} | <strong>Avance Académico:</strong> ${progress.answeredCount}/40 preguntas (${progress.percentage}%)</p>
+    <p><strong>Modelo de Negocio Elegido:</strong> ${escapeHtml(selectedModel?.name || 'Pendiente')} | <strong>Avance Académico:</strong> ${progress.answeredCount}/${progress.totalQuestions} preguntas (${progress.percentage}%)</p>
   </div>
 
   <h2>1. Resumen Financiero e Inversión Inicial</h2>
@@ -504,7 +506,7 @@ export function buildWordReportHtml(state: BusinessPlanState): string {
     <tbody>${legalRows}</tbody>
   </table>
 
-  <h2>4. Desarrollo Completo de las 40 Preguntas Estratégicas</h2>
+  <h2>4. Desarrollo Completo de las ${progress.totalQuestions} Preguntas Estratégicas</h2>
   ${questionsHtml}
 
   <h2>5. Rúbrica de la propuesta de sistema de información gerencial</h2>

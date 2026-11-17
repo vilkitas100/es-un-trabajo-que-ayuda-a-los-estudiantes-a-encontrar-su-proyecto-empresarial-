@@ -4,12 +4,12 @@ import { SIG_RUBRIC_CRITERIA } from '../data/questionsAndRubric';
 import { RubricScoreValue } from '../types/businessPlan';
 
 const CATEGORY_COLORS: Record<string, string> = {
-  Equipamiento: '#4F46E5',
-  'Capital de Trabajo': '#059669',
-  'Inventario Inicial': '#F97316',
-  'Permisos y Legal': '#7C3AED',
-  'Tecnología y SIG': '#0284C7',
-  'Marketing Lanzamiento': '#D97706',
+  Equipamiento: '#1D4ED8',
+  'Capital de Trabajo': '#15803D',
+  'Inventario Inicial': '#EA580C',
+  'Permisos y Legal': '#7E22CE',
+  'Tecnología y SIG': '#DC2626',
+  'Marketing Lanzamiento': '#7C2D12',
 };
 
 export const StartupCostDonutChart: React.FC<{
@@ -256,8 +256,8 @@ export const BankComparisonBarChart: React.FC<{
           return (
             <div
               key={m.bankId}
-              className={`p-3 rounded-xl border transition-colors ${
-                isSelected ? 'bg-sky-50/70 border-sky-300' : 'bg-slate-50/60 border-slate-200'
+              className={`p-3 rounded-xl border-2 transition-colors bg-white ${
+                isSelected ? 'border-[#1D4ED8] bg-blue-50/40' : 'border-slate-200'
               }`}
             >
               <div className="flex items-center justify-between gap-2 mb-2">
@@ -313,8 +313,8 @@ export const RubricProfileChart: React.FC<{
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between gap-2 pb-2 border-b border-slate-200">
-        <span className="text-sm font-semibold text-slate-900">Perfil de Evaluación SIG (Base 40 pts)</span>
-        <span className="text-sm font-mono tabular-nums font-bold text-indigo-700">
+        <span className="text-sm font-bold text-[#1D4ED8]">Perfil de Evaluación SIG (Base 40 pts)</span>
+        <span className="text-sm font-mono tabular-nums font-bold text-[#15803D]">
           {summary.totalScore} / {summary.maxScore} ({summary.percentage}%)
         </span>
       </div>
